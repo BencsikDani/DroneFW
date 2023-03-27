@@ -128,12 +128,6 @@ int main(void)
 
 	MPU9250_Init();
 
-	static uint8_t ibusIndex = 0;
-	static uint8_t ibusData[IBUS_BUFFSIZE] =
-	{ 0 };
-	static uint16_t rcValue[IBUS_MAXCHANNELS];
-	char str[100];
-
 	TIM3->CCR1 = (uint32_t) speed;
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
 
@@ -183,41 +177,6 @@ int main(void)
 	/* USER CODE BEGIN WHILE */
 	while (1)
 	{
-		uint8_t val = 0;
-		HAL_UART_Receive(&huart2, &val, 1, HAL_MAX_DELAY);
-
-		if (ibusIndex == IBUS_BUFFSIZE)
-		{
-			ibusIndex = 0;
-
-			for (int i = 0; i < IBUS_MAXCHANNELS; i++)
-			{
-				rcValue[i] = (ibusData[3 + i * 2] << 8) + ibusData[2 + (i * 2)];
-			}
-
-			MPU9250_GetData(AccData, &TempData, GyroData, MagData, false);
-			if (AccData[2] > 160)
-				speed = rcValue[2] / 20;
-			else
-				speed = 50;
-
-			sprintf(str,
-					"Speed: %d\r\nTemp: %.4f\r\nAcc:  %5d ; %5d ; %5d\r\nGyro: %5d ; %5d ; %5d\r\nMagn: %5d ; %5d ; %5d\r\n\r\n",
-					speed, TempData, AccData[0], AccData[1], AccData[2],
-					GyroData[0], GyroData[1], GyroData[2], MagData[0],
-					MagData[1], MagData[2]);
-
-			HAL_UART_Transmit(&huart5, str, strlen(str), HAL_MAX_DELAY);
-			TIM3->CCR1 = (uint32_t) speed;
-			HAL_Delay(50);
-		}
-		else if ((ibusIndex == 0 && val == 0x20)
-				|| (ibusIndex == 1 && val == 0x40) || (ibusIndex > 1))
-		{
-			ibusData[ibusIndex] = val;
-			ibusIndex++;
-		}
-
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
@@ -480,10 +439,49 @@ static void MX_GPIO_Init(void)
 void StartTask1(void const *argument)
 {
 	/* USER CODE BEGIN 5 */
+
+	static uint8_t ibusIndex = 0;
+	static uint8_t ibusData[IBUS_BUFFSIZE] = { 0 };
+	static uint16_t rcValue[IBUS_MAXCHANNELS];
+	char str[100];
+
 	/* Infinite loop */
 	for (;;)
 	{
-		osDelay(1);
+		uint8_t val = 0;
+		HAL_UART_Receive(&huart2, &val, 1, HAL_MAX_DELAY);
+
+		if (ibusIndex == IBUS_BUFFSIZE)
+		{
+			ibusIndex = 0;
+
+			for (int i = 0; i < IBUS_MAXCHANNELS; i++)
+			{
+				rcValue[i] = (ibusData[3 + i * 2] << 8) + ibusData[2 + (i * 2)];
+			}
+
+			MPU9250_GetData(AccData, &TempData, GyroData, MagData, false);
+			if (AccData[2] > 160)
+				speed = rcValue[2] / 20;
+			else
+				speed = 50;
+
+			sprintf(str,
+					"Speed: %d\r\nTemp: %.4f\r\nAcc:  %5d ; %5d ; %5d\r\nGyro: %5d ; %5d ; %5d\r\nMagn: %5d ; %5d ; %5d\r\n\r\n",
+					speed, TempData, AccData[0], AccData[1], AccData[2],
+					GyroData[0], GyroData[1], GyroData[2], MagData[0],
+					MagData[1], MagData[2]);
+
+			HAL_UART_Transmit(&huart5, str, strlen(str), HAL_MAX_DELAY);
+			TIM3->CCR1 = (uint32_t) speed;
+			HAL_Delay(50);
+		}
+		else if ((ibusIndex == 0 && val == 0x20)
+				|| (ibusIndex == 1 && val == 0x40) || (ibusIndex > 1))
+		{
+			ibusData[ibusIndex] = val;
+			ibusIndex++;
+		}
 	}
 	/* USER CODE END 5 */
 }
@@ -501,7 +499,7 @@ void StartTask2(void const *argument)
 	/* Infinite loop */
 	for (;;)
 	{
-		osDelay(1);
+		osDelay(1000);
 	}
 	/* USER CODE END StartTask2 */
 }
