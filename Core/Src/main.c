@@ -70,12 +70,12 @@ osThreadId TaskRemoteHandle;
 osThreadId TaskMotorHandle;
 osThreadId TaskPowerHandle;
 osThreadId TaskDiagnosticsHandle;
-osSemaphoreId MagnSemHandle;
-osSemaphoreId RemoteBufferSemHandle;
-osSemaphoreId RemoteDataSemHandle;
-osSemaphoreId ImuSemHandle;
-osSemaphoreId DistSemHandle;
-osSemaphoreId GpsSemHandle;
+osMutexId MagnMutexHandle;
+osMutexId RemoteBufferMutexHandle;
+osMutexId RemoteDataMutexHandle;
+osMutexId ImuMutexHandle;
+osMutexId DistMutexHandle;
+osMutexId GpsMutexHandle;
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -114,15 +114,15 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	{
 		IbusIndex = 0;
 
-		Log("ISR - RBSemEnter");
-		if (osSemaphoreWait(RemoteBufferSemHandle, 0) == osOK)
+		//Log("ISR - RBMutEnter");
+		if (osMutexWait(RemoteBufferMutexHandle, 0) == osOK)
 		{
-			//Log("ISR - RBSemEntered");
+			//Log("ISR - RBMutEntered");
 			ProcessRemoteBuffer = true;
 
-			Log("ISR - RBSemRelease");
-			osSemaphoreRelease(RemoteBufferSemHandle);
-			//Log("ISR - RBSemReleased");
+			//Log("ISR - RBMutRelease");
+			osMutexRelease(RemoteBufferMutexHandle);
+			//Log("ISR - RBMutReleased");
 		}
 	}
 
@@ -174,34 +174,34 @@ int main(void)
 
   /* USER CODE END 2 */
 
+  /* Create the mutex(es) */
+  /* definition and creation of MagnMutex */
+  osMutexDef(MagnMutex);
+  MagnMutexHandle = osMutexCreate(osMutex(MagnMutex));
+
+  /* definition and creation of RemoteBufferMutex */
+  osMutexDef(RemoteBufferMutex);
+  RemoteBufferMutexHandle = osMutexCreate(osMutex(RemoteBufferMutex));
+
+  /* definition and creation of RemoteDataMutex */
+  osMutexDef(RemoteDataMutex);
+  RemoteDataMutexHandle = osMutexCreate(osMutex(RemoteDataMutex));
+
+  /* definition and creation of ImuMutex */
+  osMutexDef(ImuMutex);
+  ImuMutexHandle = osMutexCreate(osMutex(ImuMutex));
+
+  /* definition and creation of DistMutex */
+  osMutexDef(DistMutex);
+  DistMutexHandle = osMutexCreate(osMutex(DistMutex));
+
+  /* definition and creation of GpsMutex */
+  osMutexDef(GpsMutex);
+  GpsMutexHandle = osMutexCreate(osMutex(GpsMutex));
+
   /* USER CODE BEGIN RTOS_MUTEX */
 	/* add mutexes, ... */
   /* USER CODE END RTOS_MUTEX */
-
-  /* Create the semaphores(s) */
-  /* definition and creation of MagnSem */
-  osSemaphoreDef(MagnSem);
-  MagnSemHandle = osSemaphoreCreate(osSemaphore(MagnSem), 1);
-
-  /* definition and creation of RemoteBufferSem */
-  osSemaphoreDef(RemoteBufferSem);
-  RemoteBufferSemHandle = osSemaphoreCreate(osSemaphore(RemoteBufferSem), 1);
-
-  /* definition and creation of ImuSem */
-  osSemaphoreDef(ImuSem);
-  ImuSemHandle = osSemaphoreCreate(osSemaphore(ImuSem), 1);
-
-  /* definition and creation of DistSem */
-  osSemaphoreDef(DistSem);
-  DistSemHandle = osSemaphoreCreate(osSemaphore(DistSem), 1);
-
-  /* definition and creation of GpsSem */
-  osSemaphoreDef(GpsSem);
-  GpsSemHandle = osSemaphoreCreate(osSemaphore(GpsSem), 1);
-
-  /* definition and creation of RemoteDataSem */
-  osSemaphoreDef(RemoteDataSem);
-  RemoteDataSemHandle = osSemaphoreCreate(osSemaphore(RemoteDataSem), 1);
 
   /* USER CODE BEGIN RTOS_SEMAPHORES */
 	/* add semaphores, ... */
@@ -250,12 +250,12 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-	osSemaphoreRelease(RemoteBufferSemHandle);
-	osSemaphoreRelease(RemoteDataSemHandle);
-	osSemaphoreRelease(ImuSemHandle);
-	osSemaphoreRelease(MagnSemHandle);
-	osSemaphoreRelease(DistSemHandle);
-	osSemaphoreRelease(GpsSemHandle);
+	osMutexRelease(MagnMutexHandle);
+	osMutexRelease(RemoteBufferMutexHandle);
+	osMutexRelease(RemoteDataMutexHandle);
+	osMutexRelease(ImuMutexHandle);
+	osMutexRelease(DistMutexHandle);
+	osMutexRelease(GpsMutexHandle);
 
 	while (1)
 	{

@@ -6,12 +6,12 @@
 #include "Debug.h"
 
 extern UART_HandleTypeDef huart5;
-extern osSemaphoreId RemoteBufferSemHandle;
-extern osSemaphoreId RemoteDataSemHandle;
-extern osSemaphoreId ImuSemHandle;
-extern osSemaphoreId MagnSemHandle;
-extern osSemaphoreId DistSemHandle;
-extern osSemaphoreId GpsSemHandle;
+extern osMutexId MagnMutexHandle;
+extern osMutexId RemoteBufferMutexHandle;
+extern osMutexId RemoteDataMutexHandle;
+extern osMutexId ImuMutexHandle;
+extern osMutexId DistMutexHandle;
+extern osMutexId GpsMutexHandle;
 
 void TaskDiagnostics(void const *argument)
 {
@@ -20,21 +20,21 @@ void TaskDiagnostics(void const *argument)
 	/* Infinite loop */
 	while (1)
 	{
-		Log("Diag - RDSemEnter");
-		if(osSemaphoreWait(RemoteDataSemHandle, osWaitForever) == osOK)
+		//Log("Diag - RDMutEnter");
+		if(osMutexWait(RemoteDataMutexHandle, osWaitForever) == osOK)
 		{
-			//Log("Diag - RDSemEntered");
+			//Log("Diag - RDMutEntered");
 			sprintf(str, "Thrust: %d\r\n", Thrust);
 
-			Log("Diag - RDSemRelease");
-			osSemaphoreRelease(RemoteDataSemHandle);
-			//Log("Diag - RDSemReleased");
+			//Log("Diag - RDMutRelease");
+			osMutexRelease(RemoteDataMutexHandle);
+			//Log("Diag - RDMutReleased");
 		}
 
-		Log("Diag - ISemEnter");
-		if (osSemaphoreWait(ImuSemHandle, osWaitForever) == osOK)
+		//Log("Diag - IMutEnter");
+		if (osMutexWait(ImuMutexHandle, osWaitForever) == osOK)
 		{
-			//Log("Diag - ISemEntered");
+			//Log("Diag - IMutEntered");
 			sprintf(str,
 					"%sTemp: %.4f\r\nAcc:  %5d ; %5d ; %5d\r\nGyro: %5d ; %5d ; %5d\r\nMagn: %5d ; %5d ; %5d\r\n\r\n",
 					str,
@@ -42,9 +42,9 @@ void TaskDiagnostics(void const *argument)
 					GyroData[0], GyroData[1], GyroData[2], MagData[0],
 					MagData[1], MagData[2]);
 
-			Log("Diag - ISemRelease");
-			osSemaphoreRelease(ImuSemHandle);
-			//Log("Diag - ISemReleased");
+			//Log("Diag - IMutRelease");
+			osMutexRelease(ImuMutexHandle);
+			//Log("Diag - IMutReleased");
 		}
 
 		// Sending UART log info
