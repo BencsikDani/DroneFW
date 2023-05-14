@@ -3,8 +3,10 @@
 #include "stdbool.h"
 #include "Globals.h"
 
-extern osSemaphoreId RemoteBufferSemHandle;
-extern osSemaphoreId RemoteDataSemHandle;
+#include "Debug.h"
+
+extern osMutexId RemoteBufferMutexHandle;
+extern osMutexId RemoteDataMutexHandle;
 extern UART_HandleTypeDef huart2;
 
 // Task Remote
@@ -21,19 +23,19 @@ void TaskRemote(void const *argument)
 	/* Infinite loop */
 	while (1)
 	{
-		Log("Rem - RBSemEnter");
-		if (osSemaphoreWait(RemoteBufferSemHandle, osWaitForever) == osOK)
+		//Log("Rem - RBMutEnter");
+		if (osMutexWait(RemoteBufferMutexHandle, osWaitForever) == osOK)
 		{
-			//Log("Rem - RBSemEnterd");
+			//Log("Rem - RBMutEntered");
 			if (ProcessRemoteBuffer)
 			{
 				localProcessRemoteBuffer = true;
 				ProcessRemoteBuffer = false;
 			}
 
-			Log("Rem - RBSemRelease");
-			osSemaphoreRelease(RemoteBufferSemHandle);
-			//Log("Rem - RBSemReleased");
+			//Log("Rem - RBMutRelease");
+			osMutexRelease(RemoteBufferMutexHandle);
+			//Log("Rem - RBMutReleased");
 		}
 
 		if (localProcessRemoteBuffer)
@@ -47,16 +49,20 @@ void TaskRemote(void const *argument)
 				channelValues[i] = (IbusPackageBuffer[3 + 2 * i] << 8) + IbusPackageBuffer[2 + 2 * i];
 
 			// Setting the speed
-			if (osSemaphoreWait(RemoteDataSemHandle, osWaitForever) == osOK)
+			//Log("Rem - RDMutEnter");
+			if (osMutexWait(RemoteDataMutexHandle, osWaitForever) == osOK)
 			{
+				//Log("Rem - RDMutEntered");
 				Thrust = channelValues[2] / 20;
 
-				osSemaphoreRelease(RemoteDataSemHandle);
+				//Log("Rem - RDMutRelease");
+				osMutexRelease(RemoteDataMutexHandle);
+				//Log("Rem - RDMutReleased");
 			}
 
 			localProcessRemoteBuffer = false;
-
-			osDelay(10);
 		}
+
+		osDelay(100);
 	}
 }

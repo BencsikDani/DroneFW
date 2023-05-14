@@ -2,9 +2,9 @@
 CAD.formats=
 CAD.pinconfig=
 CAD.provider=
-FREERTOS.BinarySemaphores01=MagnSem,Dynamic,NULL;RemoteBufferSem,Dynamic,NULL;ImuSem,Dynamic,NULL;DistSem,Dynamic,NULL;GpsSem,Dynamic,NULL;RemoteDataSem,Dynamic,NULL
 FREERTOS.FootprintOK=true
-FREERTOS.IPParameters=Tasks01,configUSE_NEWLIB_REENTRANT,BinarySemaphores01,FootprintOK,configUSE_PREEMPTION
+FREERTOS.IPParameters=Tasks01,configUSE_NEWLIB_REENTRANT,FootprintOK,configUSE_PREEMPTION,Mutexes01
+FREERTOS.Mutexes01=MagnMutex,Dynamic,NULL;RemoteBufferMutex,Dynamic,NULL;RemoteDataMutex,Dynamic,NULL;ImuMutex,Dynamic,NULL;DistMutex,Dynamic,NULL;GpsMutex,Dynamic,NULL
 FREERTOS.Tasks01=TaskSensorData,3,512,RunTaskSensorData,Default,NULL,Dynamic,NULL,NULL;TaskController,2,128,RunTaskController,Default,NULL,Dynamic,NULL,NULL;TaskRemote,1,512,RunTaskRemote,Default,NULL,Dynamic,NULL,NULL;TaskMotor,0,128,RunTaskMotor,Default,NULL,Dynamic,NULL,NULL;TaskPower,-1,128,RunTaskPower,Default,NULL,Dynamic,NULL,NULL;TaskDiagnostics,-2,512,RunTaskDiagnostics,Default,NULL,Dynamic,NULL,NULL
 FREERTOS.configUSE_NEWLIB_REENTRANT=1
 FREERTOS.configUSE_PREEMPTION=0
