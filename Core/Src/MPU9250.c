@@ -333,7 +333,7 @@ void MPU9250_Calibrate()
 	for (int i = 0; i < avgCount; i++)
 	{
 		MPU9250_GetData(AccBiasTemp, &TempTemp, GyroBiasTemp, MagBiasTemp,
-				true);
+		true);
 
 		for (int j = 0; j < 3; j++)
 		{
