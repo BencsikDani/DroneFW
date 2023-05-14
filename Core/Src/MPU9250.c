@@ -103,12 +103,9 @@ const uint8_t AK8963_WHO_AM_I = 0x00;
 static uint8_t _buffer[96 - 59 + 1];
 static uint8_t _mag_adjust[3];
 
-int16_t AccBias[3] =
-{ 0 };
-int16_t GyroBias[3] =
-{ 0 };
-int16_t MagBias[3] =
-{ 0 };
+int16_t AccBias[3] = { 0 };
+int16_t GyroBias[3] = { 0 };
+int16_t MagBias[3] = { 0 };
 
 static inline void MPU9250_Activate()
 {
@@ -315,19 +312,13 @@ void MPU9250_Calibrate()
 	// Calculate average biases at resting point
 	int avgCount = 10;
 
-	int16_t AccBiasTemp[3] =
-	{ 0 };
-	int16_t GyroBiasTemp[3] =
-	{ 0 };
-	int16_t MagBiasTemp[3] =
-	{ 0 };
+	int16_t AccBiasTemp[3] = { 0 };
+	int16_t GyroBiasTemp[3] = { 0 };
+	int16_t MagBiasTemp[3] = { 0 };
 	float TempTemp;
-	int32_t AccBiasSum[3] =
-	{ 0 };
-	int32_t GyroBiasSum[3] =
-	{ 0 };
-	int32_t MagBiasSum[3] =
-	{ 0 };
+	int32_t AccBiasSum[3] = { 0 };
+	int32_t GyroBiasSum[3] = { 0 };
+	int32_t MagBiasSum[3] = { 0 };
 
 	// Calculate bias values
 	for (int i = 0; i < avgCount; i++)
@@ -405,8 +396,7 @@ void MPU9250_SetSampleRateDivider(SampleRateDivider srd)
 void MPU9250_GetData(int16_t *AccData, float *TempData, int16_t *GyroData,
 		int16_t *MagData, bool calibrate)
 {
-	uint8_t buffer[96 - 59 + 1] =
-	{ 0 };
+	uint8_t buffer[96 - 59 + 1] = { 0 };
 	// grab the data from the MPU9250 (Reg 59-96)
 	readRegisters(ACCEL_OUT, sizeof(buffer), buffer);
 

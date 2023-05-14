@@ -17,15 +17,19 @@
 #define MPU9250_SPI hspi2
 
 // Declare global variables
-extern volatile int speed;
-extern volatile int16_t AccData[3];
-extern volatile float TempData;
-extern volatile int16_t GyroData[3];
-extern volatile int16_t MagData[3];
+extern volatile int Thrust;
+extern volatile int Pitch;
+extern volatile int Roll;
+extern volatile int Yaw;
 
-extern volatile uint8_t RemoteBuffer;
-extern volatile uint8_t ibusIndex;	// Current position in the ibus packet
-extern volatile uint8_t ibusData[IBUS_BUFFSIZE];	// Ibus packet buffer
+extern int16_t AccData[3];
+extern float TempData;
+extern int16_t GyroData[3];
+extern int16_t MagData[3];
+
+extern volatile uint8_t Uart2Buffer;
+extern volatile uint8_t IbusIndex;	// Current position in the ibus packet
+extern volatile uint8_t IbusPackageBuffer[IBUS_BUFFSIZE];	// Ibus packet buffer
 extern volatile bool ProcessRemoteBuffer;
 
 #endif /* GLOBALS_H */

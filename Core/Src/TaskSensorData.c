@@ -2,18 +2,22 @@
 #include "Globals.h"
 #include "MPU9250.h"
 
-extern osSemaphoreId BinarySemHandle;
+extern osSemaphoreId ImuSemHandle;
 
 void TaskSensorData(void const *argument)
 {
 	/* Infinite loop */
 	while (1)
 	{
-		if (osSemaphoreWait(BinarySemHandle, osWaitForever) == osOK)
+		Log("SenDat - ISemEnter");
+		if (osSemaphoreWait(ImuSemHandle, osWaitForever) == osOK)
 		{
+			//Log("SenDat - ISemEntered");
 			MPU9250_GetData(AccData, &TempData, GyroData, MagData, false);
 
-			osSemaphoreRelease(BinarySemHandle);
+			Log("SenDat - ISemRelease");
+			osSemaphoreRelease(ImuSemHandle);
+			//Log("SenDat - ISemReleased");
 		}
 
 		osDelay(100);
