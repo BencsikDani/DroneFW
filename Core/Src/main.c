@@ -28,6 +28,10 @@
 #include "stdbool.h"
 #include "MPU9250.h"
 
+#include "Globals.h"
+
+#include "TaskDiagnostics.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -37,16 +41,6 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
-#define IBUS_BUFFSIZE 32    // Max iBus packet size (2 byte header, 14 channels x 2 bytes, 2 byte checksum)
-#define IBUS_MAXCHANNELS 6 // My TX only has 6 channels, no point in polling the rest
-
-#define THROTTLE_CHANNEL 3
-#define YAW_CHANNEL 4
-#define PITCH_CHANNEL 2
-#define ROLL_CHANNEL 1
-
-#define MPU9250_SPI hspi2
 
 /* USER CODE END PD */
 
@@ -72,17 +66,6 @@ osThreadId TaskDiagnosticsHandle;
 osSemaphoreId BinarySemHandle;
 osSemaphoreId RemoteSemHandle;
 /* USER CODE BEGIN PV */
-
-volatile int speed = 50;
-volatile int16_t AccData[3] = { 0 };
-volatile float TempData = 0;
-volatile int16_t GyroData[3] = { 0 };
-volatile int16_t MagData[3] = { 0 };
-
-volatile uint8_t RemoteBuffer = 0;
-volatile uint8_t ibusIndex = 0;	// Current position in the ibus packet
-volatile uint8_t ibusData[IBUS_BUFFSIZE] = { 0 };	// Ibus packet buffer
-volatile bool ProcessRemoteBuffer = false;
 
 /* USER CODE END PV */
 
@@ -621,43 +604,6 @@ void RunTaskPower(void const * argument)
     osDelay(1);
   }
   /* USER CODE END RunTaskPower */
-}
-
-/* USER CODE BEGIN Header_RunTaskDiagnostics */
-/**
-* @brief Function implementing the TaskDiagnostics thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_RunTaskDiagnostics */
-void RunTaskDiagnostics(void const * argument)
-{
-  /* USER CODE BEGIN RunTaskDiagnostics */
-	char str[100];
-
-	/* Infinite loop */
-	while (1)
-	{
-		if (osSemaphoreWait(BinarySemHandle, osWaitForever) == osOK)
-		{
-			//HAL_UART_Transmit(&huart5, "DEB2\r\n", strlen("DEB2\r\n"), HAL_MAX_DELAY);
-
-			// Setting up UART log info
-			sprintf(str,
-					"Speed: %d\r\nTemp: %.4f\r\nAcc:  %5d ; %5d ; %5d\r\nGyro: %5d ; %5d ; %5d\r\nMagn: %5d ; %5d ; %5d\r\n\r\n",
-					speed, TempData, AccData[0], AccData[1], AccData[2],
-					GyroData[0], GyroData[1], GyroData[2], MagData[0],
-					MagData[1], MagData[2]);
-
-			osSemaphoreRelease(BinarySemHandle);
-		}
-
-		// Sending UART log info
-		HAL_UART_Transmit(&huart5, str, strlen(str), HAL_MAX_DELAY);
-
-		osDelay(100);
-	}
-  /* USER CODE END RunTaskDiagnostics */
 }
 
 /**
