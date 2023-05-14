@@ -70,6 +70,7 @@ osThreadId TaskMotorHandle;
 osThreadId TaskPowerHandle;
 osThreadId TaskDiagnosticsHandle;
 osSemaphoreId BinarySemHandle;
+osSemaphoreId RemoteSemHandle;
 /* USER CODE BEGIN PV */
 
 volatile int speed = 50;
@@ -77,6 +78,11 @@ volatile int16_t AccData[3] = { 0 };
 volatile float TempData = 0;
 volatile int16_t GyroData[3] = { 0 };
 volatile int16_t MagData[3] = { 0 };
+
+volatile uint8_t RemoteBuffer = 0;
+volatile uint8_t ibusIndex = 0;	// Current position in the ibus packet
+volatile uint8_t ibusData[IBUS_BUFFSIZE] = { 0 };	// Ibus packet buffer
+volatile bool ProcessRemoteBuffer = false;
 
 /* USER CODE END PV */
 
@@ -87,12 +93,12 @@ static void MX_SPI2_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_UART5_Init(void);
 static void MX_USART2_UART_Init(void);
-void StartTaskSensorData(void const * argument);
-void StartTaskController(void const * argument);
-void StartTaskRemote(void const * argument);
-void StartTaskMotor(void const * argument);
-void StartTaskPower(void const * argument);
-void StartTaskDiagnostics(void const * argument);
+void RunTaskSensorData(void const * argument);
+void RunTaskController(void const * argument);
+void RunTaskRemote(void const * argument);
+void RunTaskMotor(void const * argument);
+void RunTaskPower(void const * argument);
+void RunTaskDiagnostics(void const * argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -100,7 +106,28 @@ void StartTaskDiagnostics(void const * argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+	// If we are just getting the header bytes or the actual data
+	if ((ibusIndex == 0 && RemoteBuffer == 0x20) || (ibusIndex == 1 && RemoteBuffer == 0x40) || (1 < ibusIndex && ibusIndex < IBUS_BUFFSIZE))
+	{
+		ibusData[ibusIndex] = RemoteBuffer;
+		ibusIndex++;
+	}
+	else if (ibusIndex == IBUS_BUFFSIZE)
+	{
+		ibusIndex = 0;
+		if (osSemaphoreWait(RemoteSemHandle, osWaitForever) == osOK)
+		{
+			ProcessRemoteBuffer = true;
 
+			osSemaphoreRelease(RemoteSemHandle);
+		}
+
+	}
+
+	HAL_UART_Receive_IT(&huart2, &RemoteBuffer, 1);
+}
 /* USER CODE END 0 */
 
 /**
@@ -156,6 +183,10 @@ int main(void)
   osSemaphoreDef(BinarySem);
   BinarySemHandle = osSemaphoreCreate(osSemaphore(BinarySem), 1);
 
+  /* definition and creation of RemoteSem */
+  osSemaphoreDef(RemoteSem);
+  RemoteSemHandle = osSemaphoreCreate(osSemaphore(RemoteSem), 1);
+
   /* USER CODE BEGIN RTOS_SEMAPHORES */
 	/* add semaphores, ... */
   /* USER CODE END RTOS_SEMAPHORES */
@@ -170,27 +201,27 @@ int main(void)
 
   /* Create the thread(s) */
   /* definition and creation of TaskSensorData */
-  osThreadDef(TaskSensorData, StartTaskSensorData, osPriorityRealtime, 0, 512);
+  osThreadDef(TaskSensorData, RunTaskSensorData, osPriorityRealtime, 0, 512);
   TaskSensorDataHandle = osThreadCreate(osThread(TaskSensorData), NULL);
 
   /* definition and creation of TaskController */
-  osThreadDef(TaskController, StartTaskController, osPriorityHigh, 0, 128);
+  osThreadDef(TaskController, RunTaskController, osPriorityHigh, 0, 128);
   TaskControllerHandle = osThreadCreate(osThread(TaskController), NULL);
 
   /* definition and creation of TaskRemote */
-  osThreadDef(TaskRemote, StartTaskRemote, osPriorityAboveNormal, 0, 512);
+  osThreadDef(TaskRemote, RunTaskRemote, osPriorityAboveNormal, 0, 512);
   TaskRemoteHandle = osThreadCreate(osThread(TaskRemote), NULL);
 
   /* definition and creation of TaskMotor */
-  osThreadDef(TaskMotor, StartTaskMotor, osPriorityNormal, 0, 128);
+  osThreadDef(TaskMotor, RunTaskMotor, osPriorityNormal, 0, 128);
   TaskMotorHandle = osThreadCreate(osThread(TaskMotor), NULL);
 
   /* definition and creation of TaskPower */
-  osThreadDef(TaskPower, StartTaskPower, osPriorityBelowNormal, 0, 128);
+  osThreadDef(TaskPower, RunTaskPower, osPriorityBelowNormal, 0, 128);
   TaskPowerHandle = osThreadCreate(osThread(TaskPower), NULL);
 
   /* definition and creation of TaskDiagnostics */
-  osThreadDef(TaskDiagnostics, StartTaskDiagnostics, osPriorityLow, 0, 1024);
+  osThreadDef(TaskDiagnostics, RunTaskDiagnostics, osPriorityLow, 0, 1024);
   TaskDiagnosticsHandle = osThreadCreate(osThread(TaskDiagnostics), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
@@ -452,14 +483,14 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE END 4 */
 
-/* USER CODE BEGIN Header_StartTaskSensorData */
+/* USER CODE BEGIN Header_RunTaskSensorData */
 /**
- * @brief  Function implementing the TaskSensorData thread.
- * @param  argument: Not used
- * @retval None
- */
-/* USER CODE END Header_StartTaskSensorData */
-void StartTaskSensorData(void const * argument)
+  * @brief  Function implementing the TaskSensorData thread.
+  * @param  argument: Not used
+  * @retval None
+  */
+/* USER CODE END Header_RunTaskSensorData */
+void RunTaskSensorData(void const * argument)
 {
   /* USER CODE BEGIN 5 */
 
@@ -477,48 +508,55 @@ void StartTaskSensorData(void const * argument)
   /* USER CODE END 5 */
 }
 
-/* USER CODE BEGIN Header_StartTaskController */
+/* USER CODE BEGIN Header_RunTaskController */
 /**
- * @brief Function implementing the TaskController thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_StartTaskController */
-void StartTaskController(void const * argument)
+* @brief Function implementing the TaskController thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_RunTaskController */
+void RunTaskController(void const * argument)
 {
-  /* USER CODE BEGIN StartTaskController */
-	/* Infinite loop */
-	while (1)
-	{
-		osDelay(10);
-	}
-  /* USER CODE END StartTaskController */
+  /* USER CODE BEGIN RunTaskController */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END RunTaskController */
 }
 
-/* USER CODE BEGIN Header_StartTaskRemote */
+/* USER CODE BEGIN Header_RunTaskRemote */
 /**
- * @brief Function implementing the TaskRemote thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_StartTaskRemote */
-void StartTaskRemote(void const * argument)
+* @brief Function implementing the TaskRemote thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_RunTaskRemote */
+void RunTaskRemote(void const * argument)
 {
-  /* USER CODE BEGIN StartTaskRemote */
-	static uint8_t ibusIndex = 0;	// Current position in the ibus packet
-	static uint8_t ibusData[IBUS_BUFFSIZE] = { 0 };	// Ibus packet buffer
+  /* USER CODE BEGIN RunTaskRemote */
 	static uint16_t rcValue[IBUS_MAXCHANNELS];	// Output values of the channels (1000 ... 2000)
+	static bool localProcessRemoteBuffer;
+
+	HAL_UART_Receive_IT(&huart2, &RemoteBuffer, 1);
 
 	/* Infinite loop */
 	while (1)
 	{
-		uint8_t val = 0;
-		HAL_UART_Receive(&huart2, &val, 1, HAL_MAX_DELAY);		// Read one bite at a time
-
-		if (ibusIndex == IBUS_BUFFSIZE)
+		if (osSemaphoreWait(RemoteSemHandle, osWaitForever) == osOK)
 		{
-			ibusIndex = 0;	// Reset the index variable
+			if (ProcessRemoteBuffer)
+			{
+				localProcessRemoteBuffer = true;
+				ProcessRemoteBuffer = false;
+			}
 
+			osSemaphoreRelease(RemoteSemHandle);
+		}
+
+		if (localProcessRemoteBuffer)
+		{
 			// And cycle through the raw data and convert it to actual integer values
 			// ibus pattern example:
 			// i=0  1     2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21  22 23 24  25  26 27  28 28  30 31
@@ -541,64 +579,60 @@ void StartTaskRemote(void const * argument)
 			// Setting PWM speed
 			TIM3->CCR1 = (uint32_t) speed;
 
+			localProcessRemoteBuffer = false;
+
 			osDelay(10);
 		}
-		// If we are just getting the header bytes or the actual data
-		else if ((ibusIndex == 0 && val == 0x20) || (ibusIndex == 1 && val == 0x40) || (ibusIndex > 1))
-		{
-			ibusData[ibusIndex] = val;
-			ibusIndex++;
-		}
 	}
-  /* USER CODE END StartTaskRemote */
+  /* USER CODE END RunTaskRemote */
 }
 
-/* USER CODE BEGIN Header_StartTaskMotor */
+/* USER CODE BEGIN Header_RunTaskMotor */
 /**
- * @brief Function implementing the TaskMotor thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_StartTaskMotor */
-void StartTaskMotor(void const * argument)
+* @brief Function implementing the TaskMotor thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_RunTaskMotor */
+void RunTaskMotor(void const * argument)
 {
-  /* USER CODE BEGIN StartTaskMotor */
-	/* Infinite loop */
-	while (1)
-	{
-		osDelay(10);
-	}
-  /* USER CODE END StartTaskMotor */
+  /* USER CODE BEGIN RunTaskMotor */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END RunTaskMotor */
 }
 
-/* USER CODE BEGIN Header_StartTaskPower */
+/* USER CODE BEGIN Header_RunTaskPower */
 /**
- * @brief Function implementing the TaskPower thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_StartTaskPower */
-void StartTaskPower(void const * argument)
+* @brief Function implementing the TaskPower thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_RunTaskPower */
+void RunTaskPower(void const * argument)
 {
-  /* USER CODE BEGIN StartTaskPower */
-	/* Infinite loop */
-	while (1)
-	{
-		osDelay(10);
-	}
-  /* USER CODE END StartTaskPower */
+  /* USER CODE BEGIN RunTaskPower */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END RunTaskPower */
 }
 
-/* USER CODE BEGIN Header_StartTaskDiagnostics */
+/* USER CODE BEGIN Header_RunTaskDiagnostics */
 /**
 * @brief Function implementing the TaskDiagnostics thread.
 * @param argument: Not used
 * @retval None
 */
-/* USER CODE END Header_StartTaskDiagnostics */
-void StartTaskDiagnostics(void const * argument)
+/* USER CODE END Header_RunTaskDiagnostics */
+void RunTaskDiagnostics(void const * argument)
 {
-  /* USER CODE BEGIN StartTaskDiagnostics */
+  /* USER CODE BEGIN RunTaskDiagnostics */
 	char str[100];
 
 	/* Infinite loop */
@@ -623,7 +657,7 @@ void StartTaskDiagnostics(void const * argument)
 
 		osDelay(100);
 	}
-  /* USER CODE END StartTaskDiagnostics */
+  /* USER CODE END RunTaskDiagnostics */
 }
 
 /**
