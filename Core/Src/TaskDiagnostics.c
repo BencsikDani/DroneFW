@@ -1,6 +1,5 @@
 #include "main.h"
 #include "cmsis_os.h"
-
 #include "Globals.h"
 
 extern UART_HandleTypeDef huart5;
