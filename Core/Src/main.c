@@ -204,7 +204,7 @@ int main(void)
   TaskPowerHandle = osThreadCreate(osThread(TaskPower), NULL);
 
   /* definition and creation of TaskDiagnostics */
-  osThreadDef(TaskDiagnostics, RunTaskDiagnostics, osPriorityLow, 0, 1024);
+  osThreadDef(TaskDiagnostics, RunTaskDiagnostics, osPriorityLow, 0, 512);
   TaskDiagnosticsHandle = osThreadCreate(osThread(TaskDiagnostics), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
@@ -604,6 +604,20 @@ void RunTaskPower(void const * argument)
     osDelay(1);
   }
   /* USER CODE END RunTaskPower */
+}
+
+/* USER CODE BEGIN Header_RunTaskDiagnostics */
+/**
+* @brief Function implementing the TaskDiagnostics thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_RunTaskDiagnostics */
+void RunTaskDiagnostics(void const * argument)
+{
+	/* USER CODE BEGIN RunTaskDiagnostics */
+	TaskDiagnostics(argument);
+	/* USER CODE END RunTaskDiagnostics */
 }
 
 /**
