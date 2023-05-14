@@ -6,16 +6,8 @@
 extern UART_HandleTypeDef huart5;
 extern osSemaphoreId BinarySemHandle;
 
-/* USER CODE BEGIN Header_RunTaskDiagnostics */
-/**
-* @brief Function implementing the TaskDiagnostics thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_RunTaskDiagnostics */
-void RunTaskDiagnostics(void const * argument)
+void TaskDiagnostics(void const *argument)
 {
-  /* USER CODE BEGIN RunTaskDiagnostics */
 	char str[100];
 
 	/* Infinite loop */
@@ -23,8 +15,6 @@ void RunTaskDiagnostics(void const * argument)
 	{
 		if (osSemaphoreWait(BinarySemHandle, osWaitForever) == osOK)
 		{
-			//HAL_UART_Transmit(&huart5, "DEB2\r\n", strlen("DEB2\r\n"), HAL_MAX_DELAY);
-
 			// Setting up UART log info
 			sprintf(str,
 					"Speed: %d\r\nTemp: %.4f\r\nAcc:  %5d ; %5d ; %5d\r\nGyro: %5d ; %5d ; %5d\r\nMagn: %5d ; %5d ; %5d\r\n\r\n",
@@ -40,5 +30,4 @@ void RunTaskDiagnostics(void const * argument)
 
 		osDelay(100);
 	}
-  /* USER CODE END RunTaskDiagnostics */
 }
