@@ -1,66 +1,95 @@
 /*
- * MPU925.h
+ * MPU9250.h
  *
- *  Created on: 23 ��� 2018 �.
- *      Author: Max
+ *  Created on: Mar 13, 2022
+ *      Author: MarkSherstan
  */
 
-#ifndef MPU925_H_
-#define MPU925_H_
+#ifndef INC_MPU9250_H_
+#define INC_MPU9250_H_
 
-typedef enum GyroRange_
+// Libraries
+#include "main.h"
+#include <stdint.h>
+#include <math.h>
+
+// Constants
+#define RAD2DEG 57.2957795131
+
+// Defines
+#define WHO_AM_I_9250_ANS 0x70
+#define WHO_AM_I          0x75
+#define USER_CTRL         0x6A
+#define PWR_MGMT_1        0x6B
+#define GYRO_CONFIG       0x1B
+#define ACCEL_CONFIG      0x1C
+#define ACCEL_XOUT_H      0x3B
+#define READWRITE         0x80
+#define CS_SELECT         0
+#define CS_DESELECT       1
+#define SPI_TIMOUT_MS     1000
+#define TEMP_SENS		  333.87
+
+// Full scale ranges
+enum gyroscopeFullScaleRange
 {
-	GYRO_RANGE_250DPS = 0,
-	GYRO_RANGE_500DPS,
-	GYRO_RANGE_1000DPS,
-	GYRO_RANGE_2000DPS
-} GyroRange;
+    GFSR_250DPS,
+    GFSR_500DPS,
+    GFSR_1000DPS,
+    GFSR_2000DPS
+};
 
-typedef enum AccelRange_
+enum accelerometerFullScaleRange
 {
-	ACCEL_RANGE_2G = 0, ACCEL_RANGE_4G, ACCEL_RANGE_8G, ACCEL_RANGE_16G
-} AccelRange;
+    AFSR_2G,
+    AFSR_4G,
+    AFSR_8G,
+    AFSR_16G
+};
 
-typedef enum DLPFBandwidth_
+// Master structure
+typedef struct MPU9250
 {
-	DLPF_BANDWIDTH_184HZ = 0,
-	DLPF_BANDWIDTH_92HZ,
-	DLPF_BANDWIDTH_41HZ,
-	DLPF_BANDWIDTH_20HZ,
-	DLPF_BANDWIDTH_10HZ,
-	DLPF_BANDWIDTH_5HZ
-} DLPFBandwidth;
+    struct RawData
+    {
+        int16_t ax, ay, az, temp, gx, gy, gz;
+    } rawData;
 
-typedef enum SampleRateDivider_
-{
-	LP_ACCEL_ODR_0_24HZ = 0,
-	LP_ACCEL_ODR_0_49HZ,
-	LP_ACCEL_ODR_0_98HZ,
-	LP_ACCEL_ODR_1_95HZ,
-	LP_ACCEL_ODR_3_91HZ,
-	LP_ACCEL_ODR_7_81HZ,
-	LP_ACCEL_ODR_15_63HZ,
-	LP_ACCEL_ODR_31_25HZ,
-	LP_ACCEL_ODR_62_50HZ,
-	LP_ACCEL_ODR_125HZ,
-	LP_ACCEL_ODR_250HZ,
-	LP_ACCEL_ODR_500HZ
-} SampleRateDivider;
+    struct SensorData
+    {
+        float aScaleFactor, gScaleFactor;
+        float ax, ay, az, temp, gx, gy, gz;
+    } sensorData;
 
-uint8_t MPU9250_Init();
-void MPU9250_Calibrate();
-/* read the data, each argiment should point to a array for x, y, and x */
-void MPU9250_GetData(int16_t *AccData, float *TempData, int16_t *MagData,
-		int16_t *GyroData, bool calibrate);
+    struct GyroCal
+    {
+        float x, y, z;
+    } gyroCal;
 
-/* sets the sample rate divider to values other than default */
-void MPU9250_SetSampleRateDivider(SampleRateDivider srd);
-/* sets the DLPF bandwidth to values other than default */
-void MPU9250_SetDLPFBandwidth(DLPFBandwidth bandwidth);
-/* sets the gyro full scale range to values other than default */
-void MPU9250_SetGyroRange(GyroRange range);
-/* sets the accelerometer full scale range to values other than default */
-void MPU9250_SetAccelRange(AccelRange range);
+    struct Attitude
+    {
+        float tau, dt;
+        float r, p, y;
+    } attitude;
 
-#endif /* MPU925_H_ */
+    struct Settings
+    {
+    	uint8_t aFullScaleRange, gFullScaleRange;
+    	GPIO_TypeDef *CS_PORT;
+        uint16_t CS_PIN;
+    } settings;
+} MPU9250_t;
 
+// Functions
+uint8_t MPU_begin(SPI_HandleTypeDef *SPIx, MPU9250_t *mpuStruct);
+void MPU_REG_READ(SPI_HandleTypeDef *SPIx, MPU9250_t *pMPU9250, uint8_t addr, uint8_t *pRxData, uint16_t RxSize);
+void MPU_REG_WRITE(SPI_HandleTypeDef *SPIx, MPU9250_t *pMPU9250, uint8_t *pAddr, uint8_t *pVal);
+void MPU_writeGyroFullScaleRange(SPI_HandleTypeDef *SPIx,  MPU9250_t *pMPU9250, uint8_t gScale);
+void MPU_writeAccFullScaleRange(SPI_HandleTypeDef *SPIx, MPU9250_t *pMPU9250, uint8_t aScale);
+void MPU_calibrateGyro(SPI_HandleTypeDef *SPIx, MPU9250_t *pMPU9250, uint16_t numCalPoints);
+void MPU_readProcessedData(SPI_HandleTypeDef *SPIx, MPU9250_t *pMPU9250);
+void MPU_calcAttitude(SPI_HandleTypeDef *SPIx, MPU9250_t *pMPU9250);
+void MPU_readRawData(SPI_HandleTypeDef *SPIx, MPU9250_t *pMPU9250);
+void MPU_CS(MPU9250_t *pMPU9250, uint8_t state);
+
+#endif /* INC_MPU9250_H_ */

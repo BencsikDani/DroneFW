@@ -6,7 +6,7 @@
 
 extern UART_HandleTypeDef huart5;
 
-static bool DebugIsOn = false;
+static bool DebugIsOn = true;
 
 void Log(const char* msg)
 {
