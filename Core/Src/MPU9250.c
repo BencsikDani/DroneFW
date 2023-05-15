@@ -7,6 +7,7 @@
 
 #include "main.h"
 #include "stdbool.h"
+#include "string.h"
 #include "MPU9250.h"
 
 extern UART_HandleTypeDef huart5;
