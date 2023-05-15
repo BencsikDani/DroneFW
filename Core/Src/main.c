@@ -161,30 +161,7 @@ int main(void)
 	TIM3->CCR1 = (uint32_t) Thrust;
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
 
-	// Init IMU
-	// Disable BMP280
-	HAL_GPIO_WritePin(IMU_CSBM_GPIO_Port, IMU_CSBM_Pin, GPIO_PIN_SET);
-	MPU9250.settings.gFullScaleRange = GFSR_250DPS;
-	MPU9250.settings.aFullScaleRange = AFSR_2G;
-	MPU9250.settings.CS_PIN = IMU_CSIMU_Pin;
-	MPU9250.settings.CS_PORT = IMU_CSIMU_GPIO_Port;
-	MPU9250.attitude.tau = 0.98;
-	MPU9250.attitude.dt = 0.004;
-
-	// Check if IMU configured properly and block if it didn't
-	if (MPU_begin(&hspi2, &MPU9250) != true)
-	{
-		HAL_UART_Transmit(&huart5, "ERROR!\r\n", strlen("ERROR!\r\n"),
-		HAL_MAX_DELAY);
-		while (1)
-		{
-		}
-	}
-
-	// Calibrate the IMU
-	HAL_UART_Transmit(&huart5, "CALIBRATING...\r\n",
-			strlen("CALIBRATING...\r\n"), HAL_MAX_DELAY);
-	MPU_calibrateGyro(&hspi2, &MPU9250, 10);
+	MPU_Init(&hspi2, &MPU9250);
 
 	/* USER CODE END 2 */
 
