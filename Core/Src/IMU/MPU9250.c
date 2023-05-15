@@ -8,7 +8,7 @@
 #include "main.h"
 #include "stdbool.h"
 #include "string.h"
-#include "MPU9250.h"
+#include "IMU/MPU9250.h"
 
 extern UART_HandleTypeDef huart5;
 
@@ -197,10 +197,10 @@ void MPU_writeGyroFullScaleRange(SPI_HandleTypeDef *SPIx, MPU9250_t *pMPU9250, u
 void MPU_readRawData(SPI_HandleTypeDef *SPIx, MPU9250_t *pMPU9250)
 {
     // Init buffer
-    uint8_t buf[14];
+    uint8_t buf[6+2+6+24];
 
     // Subroutine for reading the raw data
-    MPU_REG_READ(SPIx, pMPU9250, ACCEL_XOUT_H, &buf[0], 14);
+    MPU_REG_READ(SPIx, pMPU9250, ACCEL_XOUT_H, buf, 6+2+6+24);
 
     // Bit shift the data
     pMPU9250->rawData.ax = buf[0] << 8 | buf[1];
@@ -212,6 +212,10 @@ void MPU_readRawData(SPI_HandleTypeDef *SPIx, MPU9250_t *pMPU9250)
     pMPU9250->rawData.gx = buf[8] << 8 | buf[9];
     pMPU9250->rawData.gy = buf[10] << 8 | buf[11];
     pMPU9250->rawData.gz = buf[12] << 8 | buf[13];
+
+    //pMPU9250->rawData.mx = buf[14+MAGN_X_OFFS_H] << 8 | buf[14+MAGN_X_OFFS_L];
+	//pMPU9250->rawData.my = buf[14+MAGN_Y_OFFS_H] << 8 | buf[14+MAGN_Y_OFFS_L];
+	//pMPU9250->rawData.mz = buf[14+MAGN_Z_OFFS_H] << 8 | buf[14+MAGN_Z_OFFS_L];
 }
 
 /// @brief Find offsets for each axis of gyroscope

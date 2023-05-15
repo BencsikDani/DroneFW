@@ -26,7 +26,8 @@
 #include "stdio.h"
 #include "string.h"
 #include "stdbool.h"
-#include "MPU9250.h"
+#include "IMU/MPU9250.h"
+#include "IMU/BMP280.h"
 
 #include "Globals.h"
 
@@ -162,6 +163,7 @@ int main(void)
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
 
 	MPU_Init(&hspi2, &MPU9250);
+	BMP280_initialize(&hspi2, &BMP280);
 
   /* USER CODE END 2 */
 
@@ -448,7 +450,7 @@ static void MX_USART2_UART_Init(void)
   huart2.Init.WordLength = UART_WORDLENGTH_8B;
   huart2.Init.StopBits = UART_STOPBITS_2;
   huart2.Init.Parity = UART_PARITY_NONE;
-  huart2.Init.Mode = UART_MODE_RX;
+  huart2.Init.Mode = UART_MODE_TX_RX;
   huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
   huart2.Init.OverSampling = UART_OVERSAMPLING_16;
   if (HAL_UART_Init(&huart2) != HAL_OK)
