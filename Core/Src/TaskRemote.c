@@ -5,7 +5,7 @@
 
 #include "Debug.h"
 
-extern osMutexId RemoteBufferMutexHandle;
+extern osSemaphoreId RemoteBufferSemaphoreHandle;
 extern osMutexId RemoteDataMutexHandle;
 extern UART_HandleTypeDef huart2;
 
@@ -23,19 +23,15 @@ void TaskRemote(void const *argument)
 	/* Infinite loop */
 	while (1)
 	{
-		//Log("Rem - RBMutEnter");
-		if (osMutexWait(RemoteBufferMutexHandle, osWaitForever) == osOK)
+		//Log("Rem - RBSemEnter");
+		if (osSemaphoreWait(RemoteBufferSemaphoreHandle, 0) == osOK)
 		{
-			//Log("Rem - RBMutEntered");
+			//Log("Rem - RBSemEntered");
 			if (ProcessRemoteBuffer)
 			{
 				localProcessRemoteBuffer = true;
 				ProcessRemoteBuffer = false;
 			}
-
-			//Log("Rem - RBMutRelease");
-			osMutexRelease(RemoteBufferMutexHandle);
-			//Log("Rem - RBMutReleased");
 		}
 
 		if (localProcessRemoteBuffer)
@@ -56,9 +52,10 @@ void TaskRemote(void const *argument)
 				Thrust = channelValues[2] / 20;
 
 				//Log("Rem - RDMutRelease");
-				osMutexRelease(RemoteDataMutexHandle);
+				//osMutexRelease(RemoteDataMutexHandle);
 				//Log("Rem - RDMutReleased");
 			}
+			osMutexRelease(RemoteDataMutexHandle);
 
 			localProcessRemoteBuffer = false;
 		}

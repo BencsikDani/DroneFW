@@ -19,9 +19,10 @@ void TaskMotor(void const *argument)
 			TIM3->CCR1 = (uint32_t) Thrust;
 
 			//Log("Mot - RDMutRelease");
-			osMutexRelease(RemoteDataMutexHandle);
+			//osMutexRelease(RemoteDataMutexHandle);
 			//Log("Mot - RDMutReleased");
 		}
+		osMutexRelease(RemoteDataMutexHandle);
 
 		osDelay(100);
 	}

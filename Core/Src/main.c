@@ -71,11 +71,11 @@ osThreadId TaskMotorHandle;
 osThreadId TaskPowerHandle;
 osThreadId TaskDiagnosticsHandle;
 osMutexId MagnMutexHandle;
-osMutexId RemoteBufferMutexHandle;
 osMutexId RemoteDataMutexHandle;
 osMutexId ImuMutexHandle;
 osMutexId DistMutexHandle;
 osMutexId GpsMutexHandle;
+osSemaphoreId RemoteBufferSemaphoreHandle;
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -113,17 +113,11 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	else if (IbusIndex == IBUS_BUFFSIZE)
 	{
 		IbusIndex = 0;
+		ProcessRemoteBuffer = true;
 
-		//Log("ISR - RBMutEnter");
-		if (osMutexWait(RemoteBufferMutexHandle, 0) == osOK)
-		{
-			//Log("ISR - RBMutEntered");
-			ProcessRemoteBuffer = true;
-
-			//Log("ISR - RBMutRelease");
-			osMutexRelease(RemoteBufferMutexHandle);
-			//Log("ISR - RBMutReleased");
-		}
+		//Log("ISR - RBSemRelease");
+		osSemaphoreRelease(RemoteBufferSemaphoreHandle);
+		//Log("ISR - RBSemReleased");
 	}
 
 	HAL_UART_Receive_IT(&huart2, &Uart2Buffer, 1);
@@ -164,13 +158,32 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
-	MPU9250_Init();
-
 	TIM3->CCR1 = (uint32_t) Thrust;
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
 
+	// Init IMU
+	// Disable BMP280
 	HAL_GPIO_WritePin(IMU_CSBM_GPIO_Port, IMU_CSBM_Pin, GPIO_PIN_SET);
-	MPU9250_Calibrate();
+	MPU9250.settings.gFullScaleRange = GFSR_250DPS;
+	MPU9250.settings.aFullScaleRange = AFSR_2G;
+	MPU9250.settings.CS_PIN = IMU_CSIMU_Pin;
+	MPU9250.settings.CS_PORT = IMU_CSIMU_GPIO_Port;
+	MPU9250.attitude.tau = 0.98;
+	MPU9250.attitude.dt = 0.004;
+
+	// Check if IMU configured properly and block if it didn't
+	if (MPU_begin(&hspi2, &MPU9250) != true)
+	{
+		HAL_UART_Transmit(&huart5, "ERROR!\r\n", strlen("ERROR!\r\n"),
+		HAL_MAX_DELAY);
+		while (1)
+		{
+		}
+	}
+
+	// Calibrate the IMU
+	HAL_UART_Transmit(&huart5, "CALIBRATING...\r\n", strlen("CALIBRATING...\r\n"), HAL_MAX_DELAY);
+	MPU_calibrateGyro(&hspi2, &MPU9250, 10);
 
   /* USER CODE END 2 */
 
@@ -178,10 +191,6 @@ int main(void)
   /* definition and creation of MagnMutex */
   osMutexDef(MagnMutex);
   MagnMutexHandle = osMutexCreate(osMutex(MagnMutex));
-
-  /* definition and creation of RemoteBufferMutex */
-  osMutexDef(RemoteBufferMutex);
-  RemoteBufferMutexHandle = osMutexCreate(osMutex(RemoteBufferMutex));
 
   /* definition and creation of RemoteDataMutex */
   osMutexDef(RemoteDataMutex);
@@ -202,6 +211,11 @@ int main(void)
   /* USER CODE BEGIN RTOS_MUTEX */
 	/* add mutexes, ... */
   /* USER CODE END RTOS_MUTEX */
+
+  /* Create the semaphores(s) */
+  /* definition and creation of RemoteBufferSemaphore */
+  osSemaphoreDef(RemoteBufferSemaphore);
+  RemoteBufferSemaphoreHandle = osSemaphoreCreate(osSemaphore(RemoteBufferSemaphore), 1);
 
   /* USER CODE BEGIN RTOS_SEMAPHORES */
 	/* add semaphores, ... */
@@ -251,7 +265,6 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 
 	osMutexRelease(MagnMutexHandle);
-	osMutexRelease(RemoteBufferMutexHandle);
 	osMutexRelease(RemoteDataMutexHandle);
 	osMutexRelease(ImuMutexHandle);
 	osMutexRelease(DistMutexHandle);

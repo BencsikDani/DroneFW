@@ -1,5 +1,6 @@
 #include "stdio.h"
 #include "stdbool.h"
+#include "MPU9250.h"
 
 
 #ifndef GLOBALS_H
@@ -22,14 +23,16 @@ extern volatile int Pitch;
 extern volatile int Roll;
 extern volatile int Yaw;
 
-extern int16_t AccData[3];
+extern float AccData[3];
 extern float TempData;
-extern int16_t GyroData[3];
+extern float GyroData[3];
 extern int16_t MagData[3];
 
-extern volatile uint8_t Uart2Buffer;
+extern uint8_t Uart2Buffer;
 extern volatile uint8_t IbusIndex;	// Current position in the ibus packet
 extern volatile uint8_t IbusPackageBuffer[IBUS_BUFFSIZE];	// Ibus packet buffer
 extern volatile bool ProcessRemoteBuffer;
+
+extern MPU9250_t MPU9250;
 
 #endif /* GLOBALS_H */
