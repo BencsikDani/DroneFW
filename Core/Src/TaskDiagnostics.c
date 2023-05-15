@@ -6,8 +6,8 @@
 #include "Debug.h"
 
 extern UART_HandleTypeDef huart5;
+extern osSemaphoreId RemoteBufferSemaphoreHandle;
 extern osMutexId MagnMutexHandle;
-extern osMutexId RemoteBufferMutexHandle;
 extern osMutexId RemoteDataMutexHandle;
 extern osMutexId ImuMutexHandle;
 extern osMutexId DistMutexHandle;
