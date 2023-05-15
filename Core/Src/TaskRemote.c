@@ -53,9 +53,9 @@ void TaskRemote(void const *argument)
 				//Log("Rem - RDMutEntered");
 				Thrust = channelValues[2] / 20;
 
-				char str1[40];
-				sprintf(str1, "In: %d\r\n", channelValues[2]);
-				HAL_UART_Transmit(&huart5, str1, 11, HAL_MAX_DELAY);
+				//char str1[40];
+				//sprintf(str1, "In: %d\r\n", channelValues[2]);
+				//HAL_UART_Transmit(&huart5, str1, 11, HAL_MAX_DELAY);
 
 				//Log("Rem - RDMutRelease");
 				//osMutexRelease(RemoteDataMutexHandle);
@@ -63,9 +63,9 @@ void TaskRemote(void const *argument)
 			}
 			osMutexRelease(RemoteDataMutexHandle);
 
-			char str2[40];
-			sprintf(str2, "Out: %d\r\n\r\n", channelValues[2]);
-			HAL_UART_Transmit(&huart5, str2, 13, HAL_MAX_DELAY);
+			//char str2[40];
+			//sprintf(str2, "Out: %d\r\n\r\n", channelValues[2]);
+			//HAL_UART_Transmit(&huart5, str2, 13, HAL_MAX_DELAY);
 
 			localProcessRemoteBuffer = false;
 		}

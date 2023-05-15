@@ -1,10 +1,3 @@
-/*
- * MPU9250.h
- *
- *  Created on: Mar 13, 2022
- *      Author: MarkSherstan
- */
-
 #ifndef INC_MPU9250_H_
 #define INC_MPU9250_H_
 
@@ -30,6 +23,13 @@
 #define SPI_TIMOUT_MS     1000
 #define TEMP_SENS		  333.87
 
+#define MAGN_X_OFFS_L     0x03
+#define MAGN_X_OFFS_H     0x04
+#define MAGN_Y_OFFS_L     0x05
+#define MAGN_Y_OFFS_H     0x06
+#define MAGN_Z_OFFS_L     0x07
+#define MAGN_Z_OFFS_H     0x08
+
 // Full scale ranges
 enum gyroscopeFullScaleRange
 {
@@ -52,13 +52,13 @@ typedef struct MPU9250
 {
     struct RawData
     {
-        int16_t ax, ay, az, temp, gx, gy, gz;
+        int16_t ax, ay, az, temp, gx, gy, gz, mx, my, mz;
     } rawData;
 
     struct SensorData
     {
         float aScaleFactor, gScaleFactor;
-        float ax, ay, az, temp, gx, gy, gz;
+        float ax, ay, az, temp, gx, gy, gz, mx, my, mz;
     } sensorData;
 
     struct GyroCal
