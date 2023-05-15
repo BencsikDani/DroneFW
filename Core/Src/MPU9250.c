@@ -6,7 +6,10 @@
  */
 
 #include "main.h"
+#include "stdbool.h"
 #include "MPU9250.h"
+
+extern UART_HandleTypeDef huart5;
 
 /// @brief Check for connection, reset IMU, and set full range scale
 /// @param SPIx Pointer to SPI structure config
@@ -39,6 +42,34 @@ uint8_t MPU_begin(SPI_HandleTypeDef *SPIx, MPU9250_t *pMPU9250)
     {
         return 0;
     }
+}
+
+/// @brief Do the whole initialization of the IMU
+/// @param SPIx Pointer to SPI structure config
+/// @param pMPU9250 Pointer to master MPU9250 struct
+void MPU_Init(SPI_HandleTypeDef *SPIx, MPU9250_t *pMPU9250)
+{
+	// Disable BMP280
+	HAL_GPIO_WritePin(IMU_CSBM_GPIO_Port, IMU_CSBM_Pin, GPIO_PIN_SET);
+
+	// Set the config parameters
+	pMPU9250->settings.gFullScaleRange = GFSR_250DPS;
+	pMPU9250->settings.aFullScaleRange = AFSR_2G;
+	pMPU9250->settings.CS_PIN = IMU_CSIMU_Pin;
+	pMPU9250->settings.CS_PORT = IMU_CSIMU_GPIO_Port;
+	pMPU9250->attitude.tau = 0.98;
+	pMPU9250->attitude.dt = 0.004;
+
+	// Check if IMU configured properly and block if it didn't
+	if (MPU_begin(SPIx, pMPU9250) != true)
+	{
+		HAL_UART_Transmit(&huart5, "ERROR!\r\n", strlen("ERROR!\r\n"), HAL_MAX_DELAY);
+		while (1) {}
+	}
+
+	// Calibrate the IMU
+	HAL_UART_Transmit(&huart5, "CALIBRATING...\r\n", strlen("CALIBRATING...\r\n"), HAL_MAX_DELAY);
+	MPU_calibrateGyro(SPIx, pMPU9250, 10);
 }
 
 /// @brief Read a specific registry address
