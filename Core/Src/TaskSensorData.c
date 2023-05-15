@@ -1,6 +1,7 @@
 #include "cmsis_os.h"
 #include "Globals.h"
-#include "MPU9250.h"
+#include "IMU/MPU9250.h"
+#include "IMU/BMP280.h"
 
 #include "Debug.h"
 
@@ -27,6 +28,13 @@ void TaskSensorData(void const *argument)
 			GyroData[0] = MPU9250.sensorData.gx;
 			GyroData[1] = MPU9250.sensorData.gy;
 			GyroData[2] = MPU9250.sensorData.gz;
+
+
+			BMP280_measure(&BMP280);
+
+			BMP_Temp = BMP280.measurement.temperature;
+			BMP_Pres = BMP280.measurement.pressure;
+			BMP_Alt = BMP280.measurement.altitude;
 
 			//Log("SenDat - IMutRelease");
 			//osMutexRelease(ImuMutexHandle);

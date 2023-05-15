@@ -15,7 +15,7 @@ extern osMutexId GpsMutexHandle;
 
 void TaskDiagnostics(void const *argument)
 {
-	char str[100];
+	char str[200];
 
 	/* Infinite loop */
 	while (1)
@@ -37,10 +37,15 @@ void TaskDiagnostics(void const *argument)
 		{
 			//Log("Diag - IMutEntered");
 			sprintf(str,
-					"%sTemp: %.4f\r\nAcc:  %1.4f ; %1.4f ; %1.4f\r\nGyro: %1.4f ; %1.4f ; %1.4f\r\n\r\n",
+					"%sTemp: %.4f\r\nAcc:  %1.4f ; %1.4f ; %1.4f\r\nGyro: %1.4f ; %1.4f ; %1.4f\r\n",
 					str,
 					TempData, AccData[0], AccData[1], AccData[2],
 					GyroData[0], GyroData[1], GyroData[2]);
+
+			sprintf(str,
+					"%sBMP_Temp: %.4f\r\nBMP_Pres: %.4f\r\nBMP_Alt: %.4f\r\n\r\n",
+					str,
+					BMP_Temp, BMP_Pres, BMP_Alt);
 
 			//Log("Diag - IMutRelease");
 			//osMutexRelease(ImuMutexHandle);
