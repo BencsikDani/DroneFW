@@ -1,6 +1,7 @@
 #include "main.h"
 #include "cmsis_os.h"
 #include "stdbool.h"
+#include "string.h"
 #include "Globals.h"
 
 #include "Debug.h"
@@ -8,6 +9,7 @@
 extern osSemaphoreId RemoteBufferSemaphoreHandle;
 extern osMutexId RemoteDataMutexHandle;
 extern UART_HandleTypeDef huart2;
+extern UART_HandleTypeDef huart5;
 
 // Task Remote
 // - Starts Interrupt UART communication with the Receiver
@@ -24,7 +26,7 @@ void TaskRemote(void const *argument)
 	while (1)
 	{
 		//Log("Rem - RBSemEnter");
-		if (osSemaphoreWait(RemoteBufferSemaphoreHandle, 0) == osOK)
+		if (osSemaphoreWait(RemoteBufferSemaphoreHandle, osWaitForever) == osOK)
 		{
 			//Log("Rem - RBSemEntered");
 			if (ProcessRemoteBuffer)
@@ -51,11 +53,19 @@ void TaskRemote(void const *argument)
 				//Log("Rem - RDMutEntered");
 				Thrust = channelValues[2] / 20;
 
+				char str1[40];
+				sprintf(str1, "In: %d\r\n", channelValues[2]);
+				HAL_UART_Transmit(&huart5, str1, 11, HAL_MAX_DELAY);
+
 				//Log("Rem - RDMutRelease");
 				//osMutexRelease(RemoteDataMutexHandle);
 				//Log("Rem - RDMutReleased");
 			}
 			osMutexRelease(RemoteDataMutexHandle);
+
+			char str2[40];
+			sprintf(str2, "Out: %d\r\n\r\n", channelValues[2]);
+			HAL_UART_Transmit(&huart5, str2, 13, HAL_MAX_DELAY);
 
 			localProcessRemoteBuffer = false;
 		}
