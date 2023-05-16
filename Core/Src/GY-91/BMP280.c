@@ -1,7 +1,6 @@
+#include <GY-91/BMP280.h>
 #include "main.h"
 #include "cmsis_os.h"
-#include "IMU/BMP280.h"
-
 #include <math.h>
 #include <stdint.h>
 

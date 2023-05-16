@@ -5,10 +5,10 @@
  *      Author: MarkSherstan
  */
 
+#include <GY-91/MPU9250.h>
 #include "main.h"
 #include "stdbool.h"
 #include "string.h"
-#include "IMU/MPU9250.h"
 
 extern UART_HandleTypeDef huart5;
 
