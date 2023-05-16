@@ -1,7 +1,8 @@
 #ifndef BMP280_H
 #define BMP280_H
 
-
+#include "main.h"
+#include "cmsis_os.h"
 #include <stdint.h>
 
 

@@ -2,10 +2,11 @@
 #define GLOBALS_H
 
 
+#include <GY-91/BMP280.h>
+#include <GY-91/MPU9250.h>
+#include <GY-271/HMC5883L.h>
 #include "stdio.h"
 #include "stdbool.h"
-#include "IMU/MPU9250.h"
-#include "IMU/BMP280.h"
 
 
 // Declare global defines
@@ -35,6 +36,19 @@ extern BMP280_t BMP280;
 extern float BMP_Temp;
 extern float BMP_Pres;
 extern float BMP_Alt;
+
+extern float mG_per_LSB;
+extern Vector v;
+extern int xOffset, yOffset;
+extern float declination;
+extern float MAG_X_RAW;
+extern float MAG_Y_RAW;
+extern float MAG_Z_RAW;
+extern float MAG_X_NORM;
+extern float MAG_Y_NORM;
+extern float MAG_Z_NORM;
+extern float magnitude;
+extern float MAG_dir;
 
 extern volatile uint8_t Uart2Buffer;
 extern volatile uint8_t IbusIndex;	// Current position in the ibus packet
