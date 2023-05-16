@@ -1,12 +1,17 @@
+#include <GY-91/BMP280.h>
+#include <GY-91/MPU9250.h>
+#include <GY-271/HMC5883L.h>
 #include "cmsis_os.h"
+#include "math.h"
 #include "Globals.h"
-#include "IMU/MPU9250.h"
-#include "IMU/BMP280.h"
-
 #include "Debug.h"
 
 extern SPI_HandleTypeDef hspi2;
+extern osMutexId MagnMutexHandle;
+extern osMutexId RemoteDataMutexHandle;
 extern osMutexId ImuMutexHandle;
+extern osMutexId DistMutexHandle;
+extern osMutexId GpsMutexHandle;
 
 void TaskSensorData(void const *argument)
 {
@@ -41,6 +46,32 @@ void TaskSensorData(void const *argument)
 			//Log("SenDat - IMutReleased");
 		}
 		osMutexRelease(ImuMutexHandle);
+
+		if (osMutexWait(MagnMutexHandle, osWaitForever) == osOK)
+		{
+			struct Vector res = HMC5883L_readRaw();
+			MAG_X_RAW = res.XAxis;
+			MAG_Y_RAW = res.YAxis;
+			MAG_Z_RAW = res.ZAxis;
+
+			magnitude = sqrtf((float)(MAG_X_RAW * MAG_X_RAW)
+										+ (float)(MAG_Y_RAW * MAG_Y_RAW)
+										+ (float)(MAG_Z_RAW * MAG_Z_RAW));
+
+			MAG_X_NORM = MAG_X_RAW / magnitude;
+			MAG_Y_NORM = MAG_Y_RAW / magnitude;
+			MAG_Z_NORM = MAG_Z_RAW / magnitude;
+
+			MAG_dir = atan2f(MAG_X_NORM, MAG_Y_NORM)*180.0f/M_PI;
+
+			MAG_dir += declination;
+
+			if (MAG_dir < 0)
+				MAG_dir += 360.0f;
+			if (MAG_dir > 360.0f)
+				MAG_dir -= 360.0f;
+		}
+		osMutexRelease(MagnMutexHandle);
 
 		osDelay(100);
 	}

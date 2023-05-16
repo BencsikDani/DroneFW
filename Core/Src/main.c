@@ -26,9 +26,6 @@
 #include "stdio.h"
 #include "string.h"
 #include "stdbool.h"
-#include "IMU/MPU9250.h"
-#include "IMU/BMP280.h"
-
 #include "Globals.h"
 
 #include "TaskSensorData.h"
@@ -58,6 +55,8 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+I2C_HandleTypeDef hi2c1;
+
 SPI_HandleTypeDef hspi2;
 
 TIM_HandleTypeDef htim3;
@@ -88,6 +87,7 @@ static void MX_SPI2_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_UART5_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_I2C1_Init(void);
 void RunTaskSensorData(void const * argument);
 void RunTaskController(void const * argument);
 void RunTaskRemote(void const * argument);
@@ -157,6 +157,7 @@ int main(void)
   MX_TIM3_Init();
   MX_UART5_Init();
   MX_USART2_UART_Init();
+  MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
 
 	TIM3->CCR1 = (uint32_t) Thrust;
@@ -164,6 +165,8 @@ int main(void)
 
 	MPU_Init(&hspi2, &MPU9250);
 	BMP280_initialize(&hspi2, &BMP280);
+
+	HMC5883L_Init();
 
   /* USER CODE END 2 */
 
@@ -298,6 +301,40 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+}
+
+/**
+  * @brief I2C1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_I2C1_Init(void)
+{
+
+  /* USER CODE BEGIN I2C1_Init 0 */
+
+  /* USER CODE END I2C1_Init 0 */
+
+  /* USER CODE BEGIN I2C1_Init 1 */
+
+  /* USER CODE END I2C1_Init 1 */
+  hi2c1.Instance = I2C1;
+  hi2c1.Init.ClockSpeed = 100000;
+  hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_2;
+  hi2c1.Init.OwnAddress1 = 0;
+  hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+  hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  hi2c1.Init.OwnAddress2 = 0;
+  hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  if (HAL_I2C_Init(&hi2c1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN I2C1_Init 2 */
+
+  /* USER CODE END I2C1_Init 2 */
+
 }
 
 /**
@@ -488,6 +525,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PB8 */
+  GPIO_InitStruct.Pin = GPIO_PIN_8;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
