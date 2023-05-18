@@ -11,7 +11,7 @@
 uint8_t BMP280_initialize(SPI_HandleTypeDef *SPIx, BMP280_t *bmp280)
 {
 	// Disable MPU9250
-	HAL_GPIO_WritePin(IMU_CSIMU_GPIO_Port, IMU_CSIMU_Pin, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(SPI2_IMU_CSIMU_GPIO_Port, SPI2_IMU_CSIMU_Pin, GPIO_PIN_SET);
 
 	bmp280->spiHandle = SPIx;
 
@@ -223,13 +223,13 @@ uint8_t BMP280_spiReadWrite(BMP280_t *bmp280, uint8_t tx_message)
 /** Pull chip select high (inactive) */
 void BMP280_spiCSNhigh(BMP280_t *bmp280)
 {
-    HAL_GPIO_WritePin(IMU_CSBM_GPIO_Port, IMU_CSBM_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(SPI2_IMU_CSBM_GPIO_Port, SPI2_IMU_CSBM_Pin, GPIO_PIN_SET);
 }
 
 /** Pull chip select low (active) */
 void BMP280_spiCSNlow(BMP280_t *bmp280)
 {
-    HAL_GPIO_WritePin(IMU_CSBM_GPIO_Port, IMU_CSBM_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(SPI2_IMU_CSBM_GPIO_Port, SPI2_IMU_CSBM_Pin, GPIO_PIN_RESET);
 }
 
 /**
