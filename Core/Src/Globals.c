@@ -9,9 +9,9 @@
 
 // Declare global variables
 uint16_t Thrust = 50;
-uint16_t Pitch = 0;
-uint16_t Roll = 0;
-uint16_t Yaw = 0;
+uint16_t Pitch = 50;
+uint16_t Roll = 50;
+uint16_t Yaw = 50;
 
 MPU9250_t MPU9250;
 float AccData[3] = { 0 };

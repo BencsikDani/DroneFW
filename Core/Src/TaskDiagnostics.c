@@ -5,7 +5,7 @@
 
 #include "Debug.h"
 
-extern UART_HandleTypeDef huart5;
+extern UART_HandleTypeDef huart3;
 extern osSemaphoreId RemoteBufferSemaphoreHandle;
 extern osMutexId MagnMutexHandle;
 extern osMutexId RemoteDataMutexHandle;
@@ -25,6 +25,9 @@ void TaskDiagnostics(void const *argument)
 		{
 			//Log("Diag - RDMutEntered");
 			sprintf(str, "Thrust: %d\r\n", Thrust);
+			sprintf(str, "%sPitch: %d\r\n", str, Pitch);
+			sprintf(str, "%sRoll: %d\r\n", str, Roll);
+			sprintf(str, "%sYaw: %d\r\n", str, Yaw);
 
 			//Log("Diag - RDMutRelease");
 			//osMutexRelease(RemoteDataMutexHandle);
@@ -63,7 +66,7 @@ void TaskDiagnostics(void const *argument)
 		osMutexRelease(MagnMutexHandle);
 
 		// Sending UART log info
-		HAL_UART_Transmit(&huart5, str, strlen(str), HAL_MAX_DELAY);
+		HAL_UART_Transmit(&huart3, str, strlen(str), HAL_MAX_DELAY);
 
 		osDelay(100);
 	}

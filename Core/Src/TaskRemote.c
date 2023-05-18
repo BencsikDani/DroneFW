@@ -52,6 +52,9 @@ void TaskRemote(void const *argument)
 			{
 				//Log("Rem - RDMutEntered");
 				Thrust = channelValues[2] / 20;
+				Pitch = channelValues[1] / 20 - 25;
+				Roll = channelValues[0] / 20 - 25;
+				Yaw = channelValues[3] / 20 - 25;
 
 				//char str1[40];
 				//sprintf(str1, "In: %d\r\n", channelValues[2]);
