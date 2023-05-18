@@ -59,10 +59,58 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define IMU_CSIMU_Pin GPIO_PIN_11
-#define IMU_CSIMU_GPIO_Port GPIOB
-#define IMU_CSBM_Pin GPIO_PIN_12
-#define IMU_CSBM_GPIO_Port GPIOB
+#define GPS_PPS_Pin GPIO_PIN_2
+#define GPS_PPS_GPIO_Port GPIOC
+#define UART4_GPS_TX_Pin GPIO_PIN_0
+#define UART4_GPS_TX_GPIO_Port GPIOA
+#define UART4_GPS_RX_Pin GPIO_PIN_1
+#define UART4_GPS_RX_GPIO_Port GPIOA
+#define UART2_IBUS_TX_Pin GPIO_PIN_2
+#define UART2_IBUS_TX_GPIO_Port GPIOA
+#define UART2_IBUS_RX_Pin GPIO_PIN_3
+#define UART2_IBUS_RX_GPIO_Port GPIOA
+#define SPI1_ESP_NSS_Pin GPIO_PIN_4
+#define SPI1_ESP_NSS_GPIO_Port GPIOA
+#define SPI1_ESP_SCK_Pin GPIO_PIN_5
+#define SPI1_ESP_SCK_GPIO_Port GPIOA
+#define SPI1_ESP_MISO_Pin GPIO_PIN_6
+#define SPI1_ESP_MISO_GPIO_Port GPIOA
+#define SPI1_ESP_MOSI_Pin GPIO_PIN_7
+#define SPI1_ESP_MOSI_GPIO_Port GPIOA
+#define TIM3_ESC1_CH3_Pin GPIO_PIN_0
+#define TIM3_ESC1_CH3_GPIO_Port GPIOB
+#define TIM3_ESC2_CH4_Pin GPIO_PIN_1
+#define TIM3_ESC2_CH4_GPIO_Port GPIOB
+#define SPI2_IMU_CSIMU_Pin GPIO_PIN_11
+#define SPI2_IMU_CSIMU_GPIO_Port GPIOB
+#define SPI2_IMU_CSBM_Pin GPIO_PIN_12
+#define SPI2_IMU_CSBM_GPIO_Port GPIOB
+#define SPI2_IMU_SCK_Pin GPIO_PIN_13
+#define SPI2_IMU_SCK_GPIO_Port GPIOB
+#define SPI2_IMU_MISO_Pin GPIO_PIN_14
+#define SPI2_IMU_MISO_GPIO_Port GPIOB
+#define SPI2_IMU_MOSI_Pin GPIO_PIN_15
+#define SPI2_IMU_MOSI_GPIO_Port GPIOB
+#define TIM3_ESC3_SCH1_Pin GPIO_PIN_6
+#define TIM3_ESC3_SCH1_GPIO_Port GPIOC
+#define TIM3_ESC4_CH2_Pin GPIO_PIN_7
+#define TIM3_ESC4_CH2_GPIO_Port GPIOC
+#define ESC_DOWN_Pin GPIO_PIN_8
+#define ESC_DOWN_GPIO_Port GPIOC
+#define DIS_TRIG_Pin GPIO_PIN_9
+#define DIS_TRIG_GPIO_Port GPIOA
+#define DIS_ECHO_Pin GPIO_PIN_10
+#define DIS_ECHO_GPIO_Port GPIOA
+#define UART3_PC_TX_Pin GPIO_PIN_10
+#define UART3_PC_TX_GPIO_Port GPIOC
+#define UART3_PC_RX_Pin GPIO_PIN_11
+#define UART3_PC_RX_GPIO_Port GPIOC
+#define I2C1_MAG_SCL_Pin GPIO_PIN_6
+#define I2C1_MAG_SCL_GPIO_Port GPIOB
+#define I2C1_MAG_SDA_Pin GPIO_PIN_7
+#define I2C1_MAG_SDA_GPIO_Port GPIOB
+#define MAG_RDY_Pin GPIO_PIN_8
+#define MAG_RDY_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 
