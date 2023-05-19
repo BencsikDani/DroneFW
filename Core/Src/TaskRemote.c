@@ -59,10 +59,16 @@ void TaskRemote(void const *argument)
 				//HAL_UART_Transmit(&huart3, "\r\n", sizeof("\r\n"), HAL_MAX_DELAY);
 
 				//Log("Rem - RDMutEntered");
-				Thrust = channelValues[THROTTLE_CHANNEL] / 20;
+				Throttle = channelValues[THROTTLE_CHANNEL] / 20;
 				Pitch = channelValues[PITCH_CHANNEL] / 20;
 				Roll = channelValues[ROLL_CHANNEL] / 20;
 				Yaw = channelValues[YAW_CHANNEL] / 20;
+				SWA = channelValues[SWA_CHANNEL] / 20;
+				SWB = channelValues[SWB_CHANNEL] / 20;
+				SWC = channelValues[SWC_CHANNEL] / 20;
+				SWD = channelValues[SWD_CHANNEL] / 20;
+				VRA = channelValues[VRA_CHANNEL] / 20;
+				VRB = channelValues[VRB_CHANNEL] / 20;
 
 				//char str1[40];
 				//sprintf(str1, "In: %d\r\n", channelValues[2]);

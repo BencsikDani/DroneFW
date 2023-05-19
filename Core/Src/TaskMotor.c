@@ -25,7 +25,7 @@ void TaskMotor(void const *argument)
 			TIM3->CCR1 = (uint32_t) 50;
 			TIM3->CCR2 = (uint32_t) 50;
 			TIM3->CCR4 = (uint32_t) 50;
-			TIM3->CCR3 = (uint32_t) (Thrust);
+			TIM3->CCR3 = (uint32_t) (Throttle);
 
 			//Log("Mot - RDMutRelease");
 			//osMutexRelease(RemoteDataMutexHandle);
