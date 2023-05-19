@@ -65,10 +65,6 @@ void Error_Handler(void);
 #define UART4_GPS_TX_GPIO_Port GPIOA
 #define UART4_GPS_RX_Pin GPIO_PIN_1
 #define UART4_GPS_RX_GPIO_Port GPIOA
-#define UART2_IBUS_TX_Pin GPIO_PIN_2
-#define UART2_IBUS_TX_GPIO_Port GPIOA
-#define UART2_IBUS_RX_Pin GPIO_PIN_3
-#define UART2_IBUS_RX_GPIO_Port GPIOA
 #define SPI1_ESP_NSS_Pin GPIO_PIN_4
 #define SPI1_ESP_NSS_GPIO_Port GPIOA
 #define SPI1_ESP_SCK_Pin GPIO_PIN_5
@@ -105,6 +101,10 @@ void Error_Handler(void);
 #define UART3_PC_TX_GPIO_Port GPIOC
 #define UART3_PC_RX_Pin GPIO_PIN_11
 #define UART3_PC_RX_GPIO_Port GPIOC
+#define UART2_IBUS_TX_Pin GPIO_PIN_5
+#define UART2_IBUS_TX_GPIO_Port GPIOD
+#define UART2_IBUS_RX_Pin GPIO_PIN_6
+#define UART2_IBUS_RX_GPIO_Port GPIOD
 #define I2C1_MAG_SCL_Pin GPIO_PIN_6
 #define I2C1_MAG_SCL_GPIO_Port GPIOB
 #define I2C1_MAG_SDA_Pin GPIO_PIN_7
