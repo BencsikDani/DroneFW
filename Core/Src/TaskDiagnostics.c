@@ -24,7 +24,7 @@ void TaskDiagnostics(void const *argument)
 		if(osMutexWait(RemoteDataMutexHandle, osWaitForever) == osOK)
 		{
 			//Log("Diag - RDMutEntered");
-			sprintf(str, "Thrust: %d\r\n", Throttle);
+			sprintf(str, "Throttle: (%d) %d %d %d %d\r\n", Throttle, TIM3->CCR3, TIM3->CCR4, TIM3->CCR1, TIM3->CCR2);
 			sprintf(str, "%sYaw: %d\r\n", str, Yaw);
 			sprintf(str, "%sPitch: %d\r\n", str, Pitch);
 			sprintf(str, "%sRoll: %d\r\n", str, Roll);
