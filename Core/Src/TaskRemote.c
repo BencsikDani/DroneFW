@@ -9,7 +9,7 @@
 extern osSemaphoreId RemoteBufferSemaphoreHandle;
 extern osMutexId RemoteDataMutexHandle;
 extern UART_HandleTypeDef huart2;
-extern UART_HandleTypeDef huart5;
+extern UART_HandleTypeDef huart3;
 
 // Task Remote
 // - Starts Interrupt UART communication with the Receiver
@@ -50,11 +50,19 @@ void TaskRemote(void const *argument)
 			//Log("Rem - RDMutEnter");
 			if (osMutexWait(RemoteDataMutexHandle, osWaitForever) == osOK)
 			{
+				//char str[10];
+				//for (int i = 0; i < IBUS_MAXCHANNELS; i++)
+				//{
+				//	sprintf(str, "%d ", channelValues[i]);
+				//	HAL_UART_Transmit(&huart3, str, strlen(str), HAL_MAX_DELAY);
+				//}
+				//HAL_UART_Transmit(&huart3, "\r\n", sizeof("\r\n"), HAL_MAX_DELAY);
+
 				//Log("Rem - RDMutEntered");
-				Thrust = channelValues[2] / 20;
-				Pitch = channelValues[1] / 20 - 25;
-				Roll = channelValues[0] / 20 - 25;
-				Yaw = channelValues[3] / 20 - 25;
+				Thrust = channelValues[THROTTLE_CHANNEL] / 20;
+				Pitch = channelValues[PITCH_CHANNEL] / 20;
+				Roll = channelValues[ROLL_CHANNEL] / 20;
+				Yaw = channelValues[YAW_CHANNEL] / 20;
 
 				//char str1[40];
 				//sprintf(str1, "In: %d\r\n", channelValues[2]);

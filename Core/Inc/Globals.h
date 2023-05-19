@@ -11,12 +11,12 @@
 
 // Declare global defines
 #define IBUS_BUFFSIZE 32    // Max iBus packet size (2 byte header, 14 channels x 2 bytes, 2 byte checksum)
-#define IBUS_MAXCHANNELS 6 // My TX only has 6 channels, no point in polling the rest
+#define IBUS_MAXCHANNELS 10 // My TX only has 10 channels, no point in polling the rest
 
-#define THROTTLE_CHANNEL 3
-#define YAW_CHANNEL 4
-#define PITCH_CHANNEL 2
-#define ROLL_CHANNEL 1
+#define THROTTLE_CHANNEL 3-1
+#define YAW_CHANNEL 4-1
+#define PITCH_CHANNEL 2-1
+#define ROLL_CHANNEL 1-1
 
 #define MPU9250_SPI hspi2
 
