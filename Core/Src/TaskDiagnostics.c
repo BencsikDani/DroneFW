@@ -15,7 +15,7 @@ extern osMutexId GpsMutexHandle;
 
 void TaskDiagnostics(void const *argument)
 {
-	char str[250];
+	char str[300];
 
 	/* Infinite loop */
 	while (1)
@@ -24,10 +24,16 @@ void TaskDiagnostics(void const *argument)
 		if(osMutexWait(RemoteDataMutexHandle, osWaitForever) == osOK)
 		{
 			//Log("Diag - RDMutEntered");
-			sprintf(str, "Thrust: %d\r\n", Thrust);
+			sprintf(str, "Thrust: %d\r\n", Throttle);
+			sprintf(str, "%sYaw: %d\r\n", str, Yaw);
 			sprintf(str, "%sPitch: %d\r\n", str, Pitch);
 			sprintf(str, "%sRoll: %d\r\n", str, Roll);
-			sprintf(str, "%sYaw: %d\r\n", str, Yaw);
+			sprintf(str, "%sSWA: %d\r\n", str, SWA);
+			sprintf(str, "%sSWB: %d\r\n", str, SWB);
+			sprintf(str, "%sSWC: %d\r\n", str, SWC);
+			sprintf(str, "%sSWD: %d\r\n", str, SWD);
+			sprintf(str, "%sVRA: %d\r\n", str, VRA);
+			sprintf(str, "%sVRB: %d\r\n", str, VRB);
 
 			//Log("Diag - RDMutRelease");
 			//osMutexRelease(RemoteDataMutexHandle);
