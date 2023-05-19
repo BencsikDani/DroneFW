@@ -9,22 +9,36 @@
 #include "stdbool.h"
 
 
-// Declare global defines
+// Transmitter channel details
 #define IBUS_BUFFSIZE 32    // Max iBus packet size (2 byte header, 14 channels x 2 bytes, 2 byte checksum)
 #define IBUS_MAXCHANNELS 10 // My TX only has 10 channels, no point in polling the rest
 
+// Transmitter channel numbers
 #define THROTTLE_CHANNEL 3-1
 #define YAW_CHANNEL 4-1
 #define PITCH_CHANNEL 2-1
 #define ROLL_CHANNEL 1-1
+#define SWA_CHANNEL 5-1
+#define SWB_CHANNEL 6-1
+#define SWC_CHANNEL 7-1
+#define SWD_CHANNEL 8-1
+#define VRA_CHANNEL 9-1
+#define VRB_CHANNEL 10-1
+
 
 #define MPU9250_SPI hspi2
 
-// Declare global variables
-extern uint16_t Thrust;
+// Transmitter channel variables
+extern uint16_t Throttle;
+extern uint16_t Yaw;
 extern uint16_t Pitch;
 extern uint16_t Roll;
-extern uint16_t Yaw;
+extern uint16_t SWA;
+extern uint16_t SWB;
+extern uint16_t SWC;
+extern uint16_t SWD;
+extern uint16_t VRA;
+extern uint16_t VRB;
 
 extern MPU9250_t MPU9250;
 extern float AccData[3];

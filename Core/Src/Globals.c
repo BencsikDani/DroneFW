@@ -7,11 +7,17 @@
 #include "stdbool.h"
 
 
-// Declare global variables
-uint16_t Thrust = 50;
-uint16_t Pitch = 50;
-uint16_t Roll = 50;
-uint16_t Yaw = 50;
+// Transmitter channel variables
+uint16_t Throttle = 50;
+uint16_t Yaw = 75;
+uint16_t Pitch = 75;
+uint16_t Roll = 75;
+uint16_t SWA = 50;
+uint16_t SWB = 50;
+uint16_t SWC = 50;
+uint16_t SWD = 50;
+uint16_t VRA = 50;
+uint16_t VRB = 50;
 
 MPU9250_t MPU9250;
 float AccData[3] = { 0 };
