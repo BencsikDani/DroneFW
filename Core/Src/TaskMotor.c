@@ -22,10 +22,10 @@ void TaskMotor(void const *argument)
 		{
 			//Log("Mot - RDMutEntered");
 			// Setting PWM speed
-			TIM3->CCR1 = (uint32_t) Thrust;
-			TIM3->CCR2 = (uint32_t) Pitch;
-			TIM3->CCR4 = (uint32_t) Roll;
-			TIM3->CCR3 = (uint32_t) Yaw;
+			TIM3->CCR1 = (uint32_t) 50;
+			TIM3->CCR2 = (uint32_t) 50;
+			TIM3->CCR4 = (uint32_t) 50;
+			TIM3->CCR3 = (uint32_t) (Thrust);
 
 			//Log("Mot - RDMutRelease");
 			//osMutexRelease(RemoteDataMutexHandle);
