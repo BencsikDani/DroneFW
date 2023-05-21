@@ -76,9 +76,10 @@ osThreadId TaskDiagnosticsHandle;
 osMutexId MagnMutexHandle;
 osMutexId RemoteDataMutexHandle;
 osMutexId ImuMutexHandle;
-osMutexId DistMutexHandle;
 osMutexId GpsMutexHandle;
+osMutexId DistMutexHandle;
 osSemaphoreId RemoteBufferSemaphoreHandle;
+osSemaphoreId DistSemaphoreHandle;
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -129,6 +130,15 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
 	HAL_UART_Receive_IT(&huart2, &Uart2Buffer, 1);
 }
+
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
+{
+	if (htim->Instance == TIM1)
+	{
+		HCSR04_TMR_IC_ISR(&HCSR04, htim);
+	}
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -174,6 +184,8 @@ int main(void)
 
 	HMC5883L_Init();
 
+	HCSR04_Init(&HCSR04, &htim1);
+
   /* USER CODE END 2 */
 
   /* Create the mutex(es) */
@@ -189,13 +201,13 @@ int main(void)
   osMutexDef(ImuMutex);
   ImuMutexHandle = osMutexCreate(osMutex(ImuMutex));
 
-  /* definition and creation of DistMutex */
-  osMutexDef(DistMutex);
-  DistMutexHandle = osMutexCreate(osMutex(DistMutex));
-
   /* definition and creation of GpsMutex */
   osMutexDef(GpsMutex);
   GpsMutexHandle = osMutexCreate(osMutex(GpsMutex));
+
+  /* definition and creation of DistMutex */
+  osMutexDef(DistMutex);
+  DistMutexHandle = osMutexCreate(osMutex(DistMutex));
 
   /* USER CODE BEGIN RTOS_MUTEX */
 	/* add mutexes, ... */
@@ -205,6 +217,10 @@ int main(void)
   /* definition and creation of RemoteBufferSemaphore */
   osSemaphoreDef(RemoteBufferSemaphore);
   RemoteBufferSemaphoreHandle = osSemaphoreCreate(osSemaphore(RemoteBufferSemaphore), 1);
+
+  /* definition and creation of DistSemaphore */
+  osSemaphoreDef(DistSemaphore);
+  DistSemaphoreHandle = osSemaphoreCreate(osSemaphore(DistSemaphore), 1);
 
   /* USER CODE BEGIN RTOS_SEMAPHORES */
 	/* add semaphores, ... */
@@ -256,7 +272,6 @@ int main(void)
 	osMutexRelease(MagnMutexHandle);
 	osMutexRelease(RemoteDataMutexHandle);
 	osMutexRelease(ImuMutexHandle);
-	osMutexRelease(DistMutexHandle);
 	osMutexRelease(GpsMutexHandle);
 
 	while (1)
@@ -431,6 +446,7 @@ static void MX_TIM1_Init(void)
 
   /* USER CODE END TIM1_Init 0 */
 
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
   TIM_MasterConfigTypeDef sMasterConfig = {0};
   TIM_IC_InitTypeDef sConfigIC = {0};
 
@@ -438,12 +454,21 @@ static void MX_TIM1_Init(void)
 
   /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 72-1;
+  htim1.Init.Prescaler = 16-1;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim1.Init.Period = 65535-1;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
-  htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+  if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
   if (HAL_TIM_IC_Init(&htim1) != HAL_OK)
   {
     Error_Handler();
@@ -458,7 +483,7 @@ static void MX_TIM1_Init(void)
   sConfigIC.ICSelection = TIM_ICSELECTION_DIRECTTI;
   sConfigIC.ICPrescaler = TIM_ICPSC_DIV1;
   sConfigIC.ICFilter = 0;
-  if (HAL_TIM_IC_ConfigChannel(&htim1, &sConfigIC, TIM_CHANNEL_1) != HAL_OK)
+  if (HAL_TIM_IC_ConfigChannel(&htim1, &sConfigIC, TIM_CHANNEL_3) != HAL_OK)
   {
     Error_Handler();
   }
@@ -653,7 +678,6 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
-  __HAL_RCC_GPIOE_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
@@ -691,12 +715,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(DIS_TRIG_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : DIS_ECHO_Pin */
-  GPIO_InitStruct.Pin = DIS_ECHO_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(DIS_ECHO_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : MAG_RDY_Pin */
   GPIO_InitStruct.Pin = MAG_RDY_Pin;
@@ -807,6 +825,11 @@ void RunTaskDiagnostics(void const * argument)
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   /* USER CODE BEGIN Callback 0 */
+
+	if (htim->Instance == TIM1)
+	{
+		HCSR04_TMR_OVF_ISR(&HCSR04, htim);
+	}
 
   /* USER CODE END Callback 0 */
   if (htim->Instance == TIM6) {

@@ -2,9 +2,10 @@
 #define GLOBALS_H
 
 
-#include <GY-91/BMP280.h>
-#include <GY-91/MPU9250.h>
-#include <GY-271/HMC5883L.h>
+#include "GY-91/BMP280.h"
+#include "GY-91/MPU9250.h"
+#include "GY-271/HMC5883L.h"
+#include "HCSR04/HCSR04.h"
 #include "stdio.h"
 #include "stdbool.h"
 
@@ -63,6 +64,9 @@ extern float MAG_Y_NORM;
 extern float MAG_Z_NORM;
 extern float magnitude;
 extern float MAG_dir;
+
+extern HCSR04_t HCSR04;
+extern float Distance;
 
 extern volatile uint8_t Uart2Buffer;
 extern volatile uint8_t IbusIndex;	// Current position in the ibus packet
