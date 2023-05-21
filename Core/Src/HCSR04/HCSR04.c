@@ -72,7 +72,7 @@ void HCSR04_TMR_IC_ISR(HCSR04_t* pHCSR04, TIM_HandleTypeDef* htim)
 			if (pHCSR04->T1 < pHCSR04->T2)
 				pHCSR04->DIFF = pHCSR04->T2 - pHCSR04->T1;
 			else if (pHCSR04->T2 < pHCSR04->T1)
-				pHCSR04->DIFF = (0xffff - pHCSR04->T1) + pHCSR04->T2;
+				pHCSR04->DIFF = (pHCSR04->T2 + 65535) - pHCSR04->T1;
 
 			// Write The Distance Value To The Global Struct & Reverse The ICU Edge
 			pHCSR04->DISTANCE = ((pHCSR04->DIFF / 1000.0f) * 340.0f / 2.0f) / (pHCSR04->TIM_CLK_MHz/(PS+1));

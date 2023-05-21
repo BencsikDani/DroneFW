@@ -80,6 +80,7 @@ osMutexId GpsMutexHandle;
 osMutexId DistMutexHandle;
 osSemaphoreId RemoteBufferSemaphoreHandle;
 osSemaphoreId DistSemaphoreHandle;
+osSemaphoreId GpsSemaphoreHandle;
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -110,30 +111,51 @@ void RunTaskDiagnostics(void const * argument);
 /* USER CODE BEGIN 0 */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-	// If we are just getting the header bytes or the actual data
-	if ((IbusIndex == 0 && Uart2Buffer == 0x20)
-			|| (IbusIndex == 1 && Uart2Buffer == 0x40)
-			|| (1 < IbusIndex && IbusIndex < IBUS_BUFFSIZE))
+	if (huart == &huart2)
 	{
-		IbusPackageBuffer[IbusIndex] = Uart2Buffer;
-		IbusIndex++;
+		// If we are just getting the header bytes or the actual data
+		if ((IbusPackageIndex == 0 && Uart2Buffer == 0x20)
+				|| (IbusPackageIndex == 1 && Uart2Buffer == 0x40)
+				|| (1 < IbusPackageIndex && IbusPackageIndex < IBUS_BUFFSIZE))
+		{
+			IbusPackageBuffer[IbusPackageIndex] = Uart2Buffer;
+			IbusPackageIndex++;
+		}
+		else if (IbusPackageIndex == IBUS_BUFFSIZE)
+		{
+			IbusPackageIndex = 0;
+			ProcessIbusPackageBuffer = true;
+
+			//Log("ISR - RBSemRelease");
+			osSemaphoreRelease(RemoteBufferSemaphoreHandle);
+			//Log("ISR - RBSemReleased");
+		}
+
+		HAL_UART_Receive_IT(&huart2, &Uart2Buffer, 1);
 	}
-	else if (IbusIndex == IBUS_BUFFSIZE)
+	else if (huart == &huart4)
 	{
-		IbusIndex = 0;
-		ProcessRemoteBuffer = true;
+		if (Uart4Buffer != '\n' && GPSPackageIndex < GPS_BUFFSIZE)
+		{
+			GPSPackageBuffer[GPSPackageIndex] = Uart4Buffer;
+			GPSPackageIndex++;
+		}
+		else if (GPSPackageIndex == GPS_BUFFSIZE)
+		{
+			GPSPackageIndex = 0;
+			ProcessGPSPackageBuffer = true;
 
-		//Log("ISR - RBSemRelease");
-		osSemaphoreRelease(RemoteBufferSemaphoreHandle);
-		//Log("ISR - RBSemReleased");
+			osSemaphoreRelease(GpsSemaphoreHandle);
+		}
+
+		HAL_UART_Receive_IT(&huart4, &Uart4Buffer, 1);
 	}
 
-	HAL_UART_Receive_IT(&huart2, &Uart2Buffer, 1);
 }
 
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 {
-	if (htim->Instance == TIM1)
+	if (htim == &htim1)
 	{
 		HCSR04_TMR_IC_ISR(&HCSR04, htim);
 	}
@@ -221,6 +243,10 @@ int main(void)
   /* definition and creation of DistSemaphore */
   osSemaphoreDef(DistSemaphore);
   DistSemaphoreHandle = osSemaphoreCreate(osSemaphore(DistSemaphore), 1);
+
+  /* definition and creation of GpsSemaphore */
+  osSemaphoreDef(GpsSemaphore);
+  GpsSemaphoreHandle = osSemaphoreCreate(osSemaphore(GpsSemaphore), 1);
 
   /* USER CODE BEGIN RTOS_SEMAPHORES */
 	/* add semaphores, ... */
@@ -675,9 +701,9 @@ static void MX_GPIO_Init(void)
 /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
@@ -826,7 +852,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   /* USER CODE BEGIN Callback 0 */
 
-	if (htim->Instance == TIM1)
+	if (htim == &htim1)
 	{
 		HCSR04_TMR_OVF_ISR(&HCSR04, htim);
 	}
