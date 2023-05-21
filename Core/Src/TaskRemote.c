@@ -8,6 +8,7 @@
 
 extern osSemaphoreId RemoteBufferSemaphoreHandle;
 extern osMutexId RemoteDataMutexHandle;
+
 extern UART_HandleTypeDef huart2;
 extern UART_HandleTypeDef huart3;
 

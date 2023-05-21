@@ -95,8 +95,8 @@ void Error_Handler(void);
 #define ESC_DOWN_GPIO_Port GPIOC
 #define DIS_TRIG_Pin GPIO_PIN_9
 #define DIS_TRIG_GPIO_Port GPIOA
-#define DIS_ECHO_Pin GPIO_PIN_10
-#define DIS_ECHO_GPIO_Port GPIOA
+#define TIM3_DIS_ECHO_CH3_Pin GPIO_PIN_10
+#define TIM3_DIS_ECHO_CH3_GPIO_Port GPIOA
 #define UART3_PC_TX_Pin GPIO_PIN_10
 #define UART3_PC_TX_GPIO_Port GPIOC
 #define UART3_PC_RX_Pin GPIO_PIN_11

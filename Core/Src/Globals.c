@@ -1,6 +1,7 @@
-#include <GY-91/BMP280.h>
-#include <GY-91/MPU9250.h>
-#include <GY-271/HMC5883L.h>
+#include "GY-91/BMP280.h"
+#include "GY-91/MPU9250.h"
+#include "GY-271/HMC5883L.h"
+#include "HCSR04/HCSR04.h"
 #include "math.h"
 #include "Globals.h"
 
@@ -42,6 +43,9 @@ float MAG_Y_NORM = 0;
 float MAG_Z_NORM = 0;
 float magnitude = 0;
 float MAG_dir = 0;
+
+HCSR04_t HCSR04 = {0};
+float Distance = 0.0;
 
 volatile uint8_t Uart2Buffer = 0;
 volatile uint8_t IbusIndex = 0;	// Current position in the ibus packet
