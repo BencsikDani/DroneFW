@@ -59,12 +59,12 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define GPS_PPS_Pin GPIO_PIN_2
-#define GPS_PPS_GPIO_Port GPIOC
 #define UART4_GPS_TX_Pin GPIO_PIN_0
 #define UART4_GPS_TX_GPIO_Port GPIOA
 #define UART4_GPS_RX_Pin GPIO_PIN_1
 #define UART4_GPS_RX_GPIO_Port GPIOA
+#define GPS_PPS_Pin GPIO_PIN_2
+#define GPS_PPS_GPIO_Port GPIOA
 #define SPI1_ESP_NSS_Pin GPIO_PIN_4
 #define SPI1_ESP_NSS_GPIO_Port GPIOA
 #define SPI1_ESP_SCK_Pin GPIO_PIN_5

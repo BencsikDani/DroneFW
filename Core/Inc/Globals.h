@@ -6,6 +6,7 @@
 #include "GY-91/MPU9250.h"
 #include "GY-271/HMC5883L.h"
 #include "HCSR04/HCSR04.h"
+#include "GPS/GPS.h"
 #include "stdio.h"
 #include "stdbool.h"
 
@@ -13,6 +14,8 @@
 // Transmitter channel details
 #define IBUS_BUFFSIZE 32    // Max iBus packet size (2 byte header, 14 channels x 2 bytes, 2 byte checksum)
 #define IBUS_MAXCHANNELS 10 // My TX only has 10 channels, no point in polling the rest
+
+#define GPS_BUFFSIZE  128       // GPS buffer size
 
 // Transmitter channel numbers
 #define THROTTLE_CHANNEL 3-1
@@ -69,9 +72,15 @@ extern HCSR04_t HCSR04;
 extern float Distance;
 
 extern volatile uint8_t Uart2Buffer;
-extern volatile uint8_t IbusIndex;	// Current position in the ibus packet
+extern volatile uint8_t IbusPackageIndex;	// Current position in the ibus packet
 extern volatile uint8_t IbusPackageBuffer[IBUS_BUFFSIZE];	// Ibus packet buffer
-extern volatile bool ProcessRemoteBuffer;
+extern volatile bool ProcessIbusPackageBuffer;
+
+extern GPS_t GPS;
+extern volatile uint8_t Uart4Buffer;
+extern volatile uint8_t GPSPackageIndex;
+extern volatile uint8_t GPSPackageBuffer[GPS_BUFFSIZE];
+extern volatile bool ProcessGPSPackageBuffer;
 
 
 #endif /* GLOBALS_H */
