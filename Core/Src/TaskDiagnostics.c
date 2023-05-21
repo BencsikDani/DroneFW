@@ -65,13 +65,20 @@ void TaskDiagnostics(void const *argument)
 		if (osMutexWait(MagnMutexHandle, osWaitForever) == osOK)
 		{
 			sprintf(str,
-					"%sMAG_X_RAW: %.4f\r\nMAG_Y_RAW: %.4f\r\nMAG_Z_RAW: %.4f\r\ndir: %.4f\r\n\r\n",
+					"%sMAG_X_RAW: %.4f\r\nMAG_Y_RAW: %.4f\r\nMAG_Z_RAW: %.4f\r\ndir: %.4f\r\n",
 					str,
 					MAG_X_RAW, MAG_Y_RAW, MAG_Z_RAW, MAG_dir);
 		}
 		osMutexRelease(MagnMutexHandle);
 
+		if (osMutexWait(DistMutexHandle, osWaitForever) == osOK)
+		{
+			sprintf(str, "%sDistance: %.0f mm\r\n", str, Distance);
+		}
+		osMutexRelease(DistMutexHandle);
+
 		// Sending UART log info
+		sprintf(str, "%s\r\n", str);
 		HAL_UART_Transmit(&huart3, str, strlen(str), HAL_MAX_DELAY);
 
 		osDelay(100);
