@@ -2,6 +2,7 @@
 #include "GY-91/MPU9250.h"
 #include "GY-271/HMC5883L.h"
 #include "HCSR04/HCSR04.h"
+#include "GPS/GPS.h"
 #include "math.h"
 #include "Globals.h"
 
@@ -48,10 +49,14 @@ HCSR04_t HCSR04 = {0};
 float Distance = 0.0;
 
 volatile uint8_t Uart2Buffer = 0;
-volatile uint8_t IbusIndex = 0;	// Current position in the ibus packet
+volatile uint8_t IbusPackageIndex = 0;	// Current position in the ibus packet
 volatile uint8_t IbusPackageBuffer[IBUS_BUFFSIZE] = { 0 };	// Ibus packet buffer
-volatile bool ProcessRemoteBuffer = false;
+volatile bool ProcessIbusPackageBuffer = false;
 
-
+GPS_t GPS;
+volatile uint8_t Uart4Buffer = 0;
+volatile uint8_t GPSPackageIndex = 0;
+volatile uint8_t GPSPackageBuffer[GPS_BUFFSIZE] = { 0 };
+volatile bool ProcessGPSPackageBuffer = false;
 
 

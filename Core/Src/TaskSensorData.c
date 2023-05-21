@@ -2,6 +2,7 @@
 #include "GY-91/MPU9250.h"
 #include "GY-271/HMC5883L.h"
 #include "HCSR04/HCSR04.h"
+#include "GPS/GPS.h"
 #include "cmsis_os.h"
 #include "math.h"
 #include "Globals.h"
@@ -9,7 +10,11 @@
 
 extern SPI_HandleTypeDef hspi2;
 
+extern UART_HandleTypeDef huart3;
+extern UART_HandleTypeDef huart4;
+
 extern osSemaphoreId DistSemaphoreHandle;
+extern osSemaphoreId GpsSemaphoreHandle;
 extern osMutexId MagnMutexHandle;
 extern osMutexId RemoteDataMutexHandle;
 extern osMutexId ImuMutexHandle;
@@ -18,9 +23,12 @@ extern osMutexId GpsMutexHandle;
 
 void TaskSensorData(void const *argument)
 {
+	GPS_Init();
+
 	/* Infinite loop */
 	while (1)
 	{
+		// IMU Data
 		//Log("SenDat - IMutEnter");
 		if (osMutexWait(ImuMutexHandle, osWaitForever) == osOK)
 		{
@@ -51,6 +59,7 @@ void TaskSensorData(void const *argument)
 		}
 		osMutexRelease(ImuMutexHandle);
 
+		// Magnetometer Data
 		if (osMutexWait(MagnMutexHandle, osWaitForever) == osOK)
 		{
 			struct Vector res = HMC5883L_readRaw();
@@ -77,12 +86,12 @@ void TaskSensorData(void const *argument)
 		}
 		osMutexRelease(MagnMutexHandle);
 
+		// Distance Data
 		if (!HCSR04.Triggered)
 		{
 			HCSR04_Trigger(&HCSR04);
 			HCSR04.Triggered = true;
 		}
-
 		else if (HCSR04.Triggered && osSemaphoreWait(DistSemaphoreHandle, osWaitForever) == osOK)
 		{
 			if (osMutexWait(DistMutexHandle, osWaitForever) == osOK)
@@ -91,6 +100,21 @@ void TaskSensorData(void const *argument)
 			}
 			osMutexRelease(DistMutexHandle);
 			HCSR04.Triggered = false;
+		}
+
+		// GPS Data
+		if (osSemaphoreWait(GpsSemaphoreHandle, osWaitForever) == osOK)
+		{
+			if (ProcessGPSPackageBuffer)
+			{
+				HAL_UART_Transmit(&huart3, GPSPackageBuffer, GPS_BUFFSIZE, HAL_MAX_DELAY);
+				HAL_UART_Transmit(&huart3, "\r\n", sizeof("\r\n"), HAL_MAX_DELAY);
+				//if (GPS_validate((char*) GPSPackageBuffer))
+				//	GPS_parse((char*) GPSPackageBuffer);
+				//memset(GPSPackageBuffer, 0, sizeof(GPSPackageBuffer));
+
+				ProcessGPSPackageBuffer = false;
+			}
 		}
 
 		osDelay(100);
