@@ -15,7 +15,7 @@
 #define IBUS_BUFFSIZE 32    // Max iBus packet size (2 byte header, 14 channels x 2 bytes, 2 byte checksum)
 #define IBUS_MAXCHANNELS 10 // My TX only has 10 channels, no point in polling the rest
 
-#define GPS_BUFFSIZE  128       // GPS buffer size
+#define GPS_BUFFSIZE  255       // GPS buffer size
 
 // Transmitter channel numbers
 #define THROTTLE_CHANNEL 3-1

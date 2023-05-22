@@ -14,12 +14,12 @@ extern UART_HandleTypeDef huart3;
 extern UART_HandleTypeDef huart4;
 
 extern osSemaphoreId DistSemaphoreHandle;
-extern osSemaphoreId GpsSemaphoreHandle;
+extern osSemaphoreId GpsBufferSemaphoreHandle;
 extern osMutexId MagnMutexHandle;
 extern osMutexId RemoteDataMutexHandle;
 extern osMutexId ImuMutexHandle;
 extern osMutexId DistMutexHandle;
-extern osMutexId GpsMutexHandle;
+extern osMutexId GpsDataMutexHandle;
 
 void TaskSensorData(void const *argument)
 {
@@ -103,15 +103,20 @@ void TaskSensorData(void const *argument)
 		}
 
 		// GPS Data
-		if (osSemaphoreWait(GpsSemaphoreHandle, osWaitForever) == osOK)
+		if (osSemaphoreWait(GpsBufferSemaphoreHandle, osWaitForever) == osOK)
 		{
 			if (ProcessGPSPackageBuffer)
 			{
-				HAL_UART_Transmit(&huart3, GPSPackageBuffer, GPS_BUFFSIZE, HAL_MAX_DELAY);
-				HAL_UART_Transmit(&huart3, "\r\n", sizeof("\r\n"), HAL_MAX_DELAY);
-				//if (GPS_validate((char*) GPSPackageBuffer))
-				//	GPS_parse((char*) GPSPackageBuffer);
-				//memset(GPSPackageBuffer, 0, sizeof(GPSPackageBuffer));
+				//HAL_UART_Transmit(&huart3, GPSPackageBuffer, GPS_BUFFSIZE, HAL_MAX_DELAY);
+				//HAL_UART_Transmit(&huart3, "\r\n", sizeof("\r\n"), HAL_MAX_DELAY);
+
+				if (osMutexWait(GpsDataMutexHandle, osWaitForever) == osOK)
+				{
+					if (GPS_validate((char*) GPSPackageBuffer))
+						GPS_parse((char*) GPSPackageBuffer);
+					memset(GPSPackageBuffer, 0, sizeof(GPSPackageBuffer));
+				}
+				osMutexRelease(GpsDataMutexHandle);
 
 				ProcessGPSPackageBuffer = false;
 			}

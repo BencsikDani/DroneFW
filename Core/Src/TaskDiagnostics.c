@@ -11,19 +11,17 @@ extern osMutexId MagnMutexHandle;
 extern osMutexId RemoteDataMutexHandle;
 extern osMutexId ImuMutexHandle;
 extern osMutexId DistMutexHandle;
-extern osMutexId GpsMutexHandle;
+extern osMutexId GpsDataMutexHandle;
 
 void TaskDiagnostics(void const *argument)
 {
-	char str[300];
+	char str[512];
 
 	/* Infinite loop */
 	while (1)
 	{
-		//Log("Diag - RDMutEnter");
 		if(osMutexWait(RemoteDataMutexHandle, osWaitForever) == osOK)
 		{
-			//Log("Diag - RDMutEntered");
 			sprintf(str, "Throttle: (%d) %d %d %d %d\r\n", Throttle, TIM3->CCR3, TIM3->CCR4, TIM3->CCR1, TIM3->CCR2);
 			sprintf(str, "%sYaw: %d\r\n", str, Yaw);
 			sprintf(str, "%sPitch: %d\r\n", str, Pitch);
@@ -34,17 +32,12 @@ void TaskDiagnostics(void const *argument)
 			sprintf(str, "%sSWD: %d\r\n", str, SWD);
 			sprintf(str, "%sVRA: %d\r\n", str, VRA);
 			sprintf(str, "%sVRB: %d\r\n", str, VRB);
-
-			//Log("Diag - RDMutRelease");
-			//osMutexRelease(RemoteDataMutexHandle);
-			//Log("Diag - RDMutReleased");
 		}
 		osMutexRelease(RemoteDataMutexHandle);
 
-		//Log("Diag - IMutEnter");
+
 		if (osMutexWait(ImuMutexHandle, osWaitForever) == osOK)
 		{
-			//Log("Diag - IMutEntered");
 			sprintf(str,
 					"%sTemp: %.4f\r\nAcc:  %1.4f ; %1.4f ; %1.4f\r\nGyro: %1.4f ; %1.4f ; %1.4f\r\n",
 					str,
@@ -55,12 +48,9 @@ void TaskDiagnostics(void const *argument)
 					"%sBMP_Temp: %.4f\r\nBMP_Pres: %.4f\r\nBMP_Alt: %.4f\r\n",
 					str,
 					BMP_Temp, BMP_Pres, BMP_Alt);
-
-			//Log("Diag - IMutRelease");
-			//osMutexRelease(ImuMutexHandle);
-			//Log("Diag - IMutReleased");
 		}
 		osMutexRelease(ImuMutexHandle);
+
 
 		if (osMutexWait(MagnMutexHandle, osWaitForever) == osOK)
 		{
@@ -71,15 +61,25 @@ void TaskDiagnostics(void const *argument)
 		}
 		osMutexRelease(MagnMutexHandle);
 
+
 		if (osMutexWait(DistMutexHandle, osWaitForever) == osOK)
 		{
 			sprintf(str, "%sDistance: %.0f mm\r\n", str, Distance);
 		}
 		osMutexRelease(DistMutexHandle);
 
+
+		if (osMutexWait(GpsDataMutexHandle, osWaitForever) == osOK)
+		{
+			sprintf(str, "%sGPS:\tLat -> %.4f %c\r\n\tLong -> %.4f %c\r\n\tFix -> %d\r\n\tNOS -> %d\r\n\tHDOP -> %.4f\r\n\tAlt -> %.4f %c\r\n", str, GPS.dec_latitude, GPS.ns, GPS.dec_longitude, GPS.ew, GPS.fix, GPS.num_of_satelites, GPS.horizontal_dilution_of_precision, GPS.mean_sea_level_altitude, GPS.altitude_unit);
+		}
+		osMutexRelease(GpsDataMutexHandle);
+
+
+		sprintf(str, "%s\r\n\r\n", str);
+
 		// Sending UART log info
-		sprintf(str, "%s\r\n", str);
-		//HAL_UART_Transmit(&huart3, str, strlen(str), HAL_MAX_DELAY);
+		HAL_UART_Transmit(&huart3, str, strlen(str), HAL_MAX_DELAY);
 
 		osDelay(100);
 	}

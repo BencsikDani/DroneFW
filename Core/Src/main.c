@@ -76,11 +76,11 @@ osThreadId TaskDiagnosticsHandle;
 osMutexId MagnMutexHandle;
 osMutexId RemoteDataMutexHandle;
 osMutexId ImuMutexHandle;
-osMutexId GpsMutexHandle;
+osMutexId GpsDataMutexHandle;
 osMutexId DistMutexHandle;
 osSemaphoreId RemoteBufferSemaphoreHandle;
 osSemaphoreId DistSemaphoreHandle;
-osSemaphoreId GpsSemaphoreHandle;
+osSemaphoreId GpsBufferSemaphoreHandle;
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -130,12 +130,16 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 			osSemaphoreRelease(RemoteBufferSemaphoreHandle);
 			//Log("ISR - RBSemReleased");
 		}
+		else
+			IbusPackageIndex = 0;
 
 		HAL_UART_Receive_IT(&huart2, &Uart2Buffer, 1);
 	}
 	else if (huart == &huart4)
 	{
-		if (Uart4Buffer != '\n' && GPSPackageIndex < GPS_BUFFSIZE)
+		if ((GPSPackageIndex == 0 && Uart4Buffer == '$')
+				|| (GPSPackageIndex == 1 && Uart4Buffer == 'G')
+				|| (1 < GPSPackageIndex && GPSPackageIndex < GPS_BUFFSIZE))
 		{
 			GPSPackageBuffer[GPSPackageIndex] = Uart4Buffer;
 			GPSPackageIndex++;
@@ -145,8 +149,10 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 			GPSPackageIndex = 0;
 			ProcessGPSPackageBuffer = true;
 
-			osSemaphoreRelease(GpsSemaphoreHandle);
+			osSemaphoreRelease(GpsBufferSemaphoreHandle);
 		}
+		else
+			GPSPackageIndex = 0;
 
 		HAL_UART_Receive_IT(&huart4, &Uart4Buffer, 1);
 	}
@@ -223,9 +229,9 @@ int main(void)
   osMutexDef(ImuMutex);
   ImuMutexHandle = osMutexCreate(osMutex(ImuMutex));
 
-  /* definition and creation of GpsMutex */
-  osMutexDef(GpsMutex);
-  GpsMutexHandle = osMutexCreate(osMutex(GpsMutex));
+  /* definition and creation of GpsDataMutex */
+  osMutexDef(GpsDataMutex);
+  GpsDataMutexHandle = osMutexCreate(osMutex(GpsDataMutex));
 
   /* definition and creation of DistMutex */
   osMutexDef(DistMutex);
@@ -244,9 +250,9 @@ int main(void)
   osSemaphoreDef(DistSemaphore);
   DistSemaphoreHandle = osSemaphoreCreate(osSemaphore(DistSemaphore), 1);
 
-  /* definition and creation of GpsSemaphore */
-  osSemaphoreDef(GpsSemaphore);
-  GpsSemaphoreHandle = osSemaphoreCreate(osSemaphore(GpsSemaphore), 1);
+  /* definition and creation of GpsBufferSemaphore */
+  osSemaphoreDef(GpsBufferSemaphore);
+  GpsBufferSemaphoreHandle = osSemaphoreCreate(osSemaphore(GpsBufferSemaphore), 1);
 
   /* USER CODE BEGIN RTOS_SEMAPHORES */
 	/* add semaphores, ... */
@@ -298,7 +304,7 @@ int main(void)
 	osMutexRelease(MagnMutexHandle);
 	osMutexRelease(RemoteDataMutexHandle);
 	osMutexRelease(ImuMutexHandle);
-	osMutexRelease(GpsMutexHandle);
+	osMutexRelease(GpsDataMutexHandle);
 
 	while (1)
 	{
