@@ -11,24 +11,34 @@ typedef struct
 	float altitude_ft;
 
 	// GGA - Global Positioning System Fixed Data
-	float nmea_longitude;
-	float nmea_latitude;
 	float utc_time;
-	char ns, ew;
-	int lock;
-	int satelites;
-	float hdop;
-	float msl_altitude;
-	char msl_units;
+	float nmea_latitude;
+	char ns;
+	float nmea_longitude;
+	char ew;
+	int fix;	// 0 = Invalid
+				// 1 = GNSS fix (SPS)
+				// 2 = DGPS fix
+				// 3 = PPS fix
+				// 4 = Real Time Kinematic
+				// 5 = Float RTK
+				// 6 = estimated (dead reckoning) (2.3 feature)
+				// 7 = Manual input mode
+				// 8 = Simulation mode
+	int num_of_satelites;
+	float horizontal_dilution_of_precision;
+	float mean_sea_level_altitude;
+	char altitude_unit;
 
 	// RMC - Recommended Minimmum Specific GNS Data
 	char rmc_status;
-	float speed_k;
-	float course_d;
-	int date;
+	float speed_over_ground;
+	float course_over_ground;
+	int utc_date;
 
 	// GLL
-	char gll_status;
+	char gll_status;	// A = Valud
+						// V = Invalid
 
 	// VTG - Course over ground, ground speed
 	float course_t; // ground speed true
