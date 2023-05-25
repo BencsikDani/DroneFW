@@ -11,6 +11,8 @@
 bool Diag = true;
 int Uart2CallbackCounter = 0;
 
+bool Rotors = true;
+
 // Transmitter channel variables
 uint16_t Throttle = 50;
 uint16_t Yaw = 75;
