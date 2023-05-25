@@ -20,7 +20,7 @@ void TaskRemote(void const *argument)
 {
 	static uint16_t channelValues[IBUS_MAXCHANNELS];// Output values of the channels (1000 ... 2000)
 
-	HAL_UART_Receive_IT(&huart2, &Uart2Buffer, 1);
+	HAL_UART_Receive_DMA(&huart2, &Uart2Buffer, 1);
 
 	/* Infinite loop */
 	while (1)
