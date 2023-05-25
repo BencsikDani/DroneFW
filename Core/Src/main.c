@@ -177,6 +177,32 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
 }
 
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
+{
+	if (huart == &huart2)
+	{
+		if (huart->ErrorCode != 0)
+		{
+			Diag = false;
+
+			char str[32];
+			sprintf(str, "UART2 Error Callback: %d\r\n", huart->ErrorCode);
+			HAL_UART_Transmit(&huart3, str, strlen(str), HAL_MAX_DELAY);
+		}
+	}
+	else if (huart == &huart4)
+		{
+			if (huart->ErrorCode != 0)
+			{
+				Diag = false;
+
+				char str[32];
+				sprintf(str, "UART4 Error Callback: %d\r\n", huart->ErrorCode);
+				HAL_UART_Transmit(&huart3, str, strlen(str), HAL_MAX_DELAY);
+			}
+		}
+}
+
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 {
 	if (htim == &htim1)
