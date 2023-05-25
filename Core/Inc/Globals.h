@@ -35,6 +35,8 @@
 extern bool Diag;
 extern int Uart2CallbackCounter;
 
+extern bool Rotors;
+
 // Transmitter channel variables
 extern uint16_t Throttle;
 extern uint16_t Yaw;
