@@ -32,6 +32,9 @@
 
 #define MPU9250_SPI hspi2
 
+extern bool Diag;
+extern int Uart2CallbackCounter;
+
 // Transmitter channel variables
 extern uint16_t Throttle;
 extern uint16_t Yaw;

@@ -43,13 +43,13 @@ void TaskRemote(void const *argument)
 				//Log("Rem - RDMutEnter");
 				if (osMutexWait(RemoteDataMutexHandle, osWaitForever) == osOK)
 				{
-					//char str[10];
-					//for (int i = 0; i < IBUS_MAXCHANNELS; i++)
-					//{
-					//	sprintf(str, "%d ", channelValues[i]);
-					//	HAL_UART_Transmit(&huart3, str, strlen(str), HAL_MAX_DELAY);
-					//}
-					//HAL_UART_Transmit(&huart3, "\r\n", sizeof("\r\n"), HAL_MAX_DELAY);
+//					char str[10];
+//					for (int i = 0; i < IBUS_MAXCHANNELS; i++)
+//					{
+//						sprintf(str, "%d ", channelValues[i]);
+//						HAL_UART_Transmit(&huart3, str, strlen(str), HAL_MAX_DELAY);
+//					}
+//					HAL_UART_Transmit(&huart3, "\r\n", sizeof("\r\n"), HAL_MAX_DELAY);
 
 					//Log("Rem - RDMutEntered");
 					Throttle = channelValues[THROTTLE_CHANNEL] / 20;
@@ -64,8 +64,8 @@ void TaskRemote(void const *argument)
 					VRB = channelValues[VRB_CHANNEL] / 20;
 
 					//char str1[40];
-					//sprintf(str1, "In: %d\r\n", channelValues[2]);
-					//HAL_UART_Transmit(&huart5, str1, 11, HAL_MAX_DELAY);
+					//sprintf(str1, "In: %d\r\n", channelValues[THROTTLE_CHANNEL]);
+					//HAL_UART_Transmit(&huart3, str1, 11, HAL_MAX_DELAY);
 
 					//Log("Rem - RDMutRelease");
 					//osMutexRelease(RemoteDataMutexHandle);
@@ -75,7 +75,7 @@ void TaskRemote(void const *argument)
 
 				//char str2[40];
 				//sprintf(str2, "Out: %d\r\n\r\n", channelValues[2]);
-				//HAL_UART_Transmit(&huart5, str2, 13, HAL_MAX_DELAY);
+				//HAL_UART_Transmit(&huart3, str2, 13, HAL_MAX_DELAY);
 
 				ProcessIbusPackageBuffer = false;
 			}

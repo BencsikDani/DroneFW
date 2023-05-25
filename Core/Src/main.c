@@ -113,25 +113,34 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	if (huart == &huart2)
 	{
+		Uart2CallbackCounter++;
+
 		// If we are just getting the header bytes or the actual data
 		if ((IbusPackageIndex == 0 && Uart2Buffer == 0x20)
 				|| (IbusPackageIndex == 1 && Uart2Buffer == 0x40)
 				|| (1 < IbusPackageIndex && IbusPackageIndex < IBUS_BUFFSIZE))
 		{
 			IbusPackageBuffer[IbusPackageIndex] = Uart2Buffer;
-			IbusPackageIndex++;
-		}
-		else if (IbusPackageIndex == IBUS_BUFFSIZE)
-		{
-			IbusPackageIndex = 0;
-			ProcessIbusPackageBuffer = true;
 
-			//Log("ISR - RBSemRelease");
-			osSemaphoreRelease(RemoteBufferSemaphoreHandle);
-			//Log("ISR - RBSemReleased");
+			if (IbusPackageIndex < IBUS_BUFFSIZE-1)
+				IbusPackageIndex++;
+			else
+			{
+				IbusPackageIndex = 0;
+				ProcessIbusPackageBuffer = true;
+
+				osSemaphoreRelease(RemoteBufferSemaphoreHandle);
+			}
 		}
 		else
+		{
 			IbusPackageIndex = 0;
+
+			char str[32];
+			sprintf(str, "UART Receive Error: [%d]\r\n", Uart2CallbackCounter);
+			HAL_UART_Transmit(&huart3, str, strlen(str), HAL_MAX_DELAY);
+		}
+
 
 		HAL_UART_Receive_IT(&huart2, &Uart2Buffer, 1);
 	}
@@ -142,17 +151,26 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 				|| (1 < GPSPackageIndex && GPSPackageIndex < GPS_BUFFSIZE))
 		{
 			GPSPackageBuffer[GPSPackageIndex] = Uart4Buffer;
-			GPSPackageIndex++;
-		}
-		else if (GPSPackageIndex == GPS_BUFFSIZE)
-		{
-			GPSPackageIndex = 0;
-			ProcessGPSPackageBuffer = true;
 
-			osSemaphoreRelease(GpsBufferSemaphoreHandle);
+			if (GPSPackageIndex < GPS_BUFFSIZE-1)
+				GPSPackageIndex++;
+			else
+			{
+				GPSPackageIndex = 0;
+				ProcessGPSPackageBuffer = true;
+
+				osSemaphoreRelease(GpsBufferSemaphoreHandle);
+			}
 		}
 		else
+		{
 			GPSPackageIndex = 0;
+
+			// TODO
+			//char str[32];
+			//sprintf(str, "UART Receive Error: GPS\r\n");
+			//HAL_UART_Transmit(&huart3, str, strlen(str), HAL_MAX_DELAY);
+		}
 
 		HAL_UART_Receive_IT(&huart4, &Uart4Buffer, 1);
 	}
@@ -647,7 +665,7 @@ static void MX_USART2_UART_Init(void)
   huart2.Instance = USART2;
   huart2.Init.BaudRate = 115200;
   huart2.Init.WordLength = UART_WORDLENGTH_8B;
-  huart2.Init.StopBits = UART_STOPBITS_2;
+  huart2.Init.StopBits = UART_STOPBITS_1;
   huart2.Init.Parity = UART_PARITY_NONE;
   huart2.Init.Mode = UART_MODE_TX_RX;
   huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
