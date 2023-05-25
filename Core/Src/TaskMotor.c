@@ -48,15 +48,18 @@ void TaskMotor(void const *argument)
 
 			// Setting PWM speed
 
-			TIM3->CCR3 = (uint32_t) ((Throttle * (100-(ESC1_start_signal-1)) / 50) + (2*(ESC1_start_signal-1) - 100));
-			TIM3->CCR4 = (uint32_t) ((Throttle * (100-(ESC2_start_signal-1)) / 50) + (2*(ESC2_start_signal-1) - 100));
-			TIM3->CCR1 = (uint32_t) ((Throttle * (100-(ESC3_start_signal-1)) / 50) + (2*(ESC3_start_signal-1) - 100));
+			TIM3->CCR3 = (uint32_t) (50);
+			TIM3->CCR4 = (uint32_t) (50);
+			TIM3->CCR1 = (uint32_t) (50);
+			//TIM3->CCR2 = (uint32_t) (50);
+
+			//TIM3->CCR3 = (uint32_t) ((Throttle * (100-(ESC1_start_signal-1)) / 50) + (2*(ESC1_start_signal-1) - 100));
+			//TIM3->CCR4 = (uint32_t) ((Throttle * (100-(ESC2_start_signal-1)) / 50) + (2*(ESC2_start_signal-1) - 100));
+			//TIM3->CCR1 = (uint32_t) ((Throttle * (100-(ESC3_start_signal-1)) / 50) + (2*(ESC3_start_signal-1) - 100));
 			TIM3->CCR2 = (uint32_t) ((Throttle * (100-(ESC4_start_signal-1)) / 50) + (2*(ESC4_start_signal-1) - 100));
 
 
-			//Log("Mot - RDMutRelease");
-			//osMutexRelease(RemoteDataMutexHandle);
-			//Log("Mot - RDMutReleased");
+
 		}
 		osMutexRelease(RemoteDataMutexHandle);
 

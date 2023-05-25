@@ -8,6 +8,8 @@
 
 #include "stdbool.h"
 
+bool Diag = true;
+int Uart2CallbackCounter = 0;
 
 // Transmitter channel variables
 uint16_t Throttle = 50;

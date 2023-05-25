@@ -79,7 +79,8 @@ void TaskDiagnostics(void const *argument)
 		sprintf(str, "%s\r\n\r\n", str);
 
 		// Sending UART log info
-		HAL_UART_Transmit(&huart3, str, strlen(str), HAL_MAX_DELAY);
+		if (Diag)
+			HAL_UART_Transmit(&huart3, str, strlen(str), HAL_MAX_DELAY);
 
 		osDelay(100);
 	}
