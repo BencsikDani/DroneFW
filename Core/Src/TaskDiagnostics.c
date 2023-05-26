@@ -82,6 +82,8 @@ void TaskDiagnostics(void const *argument)
 		if (Diag)
 			HAL_UART_Transmit(&huart3, str, strlen(str), HAL_MAX_DELAY);
 
+		printf("Csaaaa\r\n");
+
 		osDelay(100);
 	}
 }

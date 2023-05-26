@@ -26,6 +26,7 @@
 #include "stdio.h"
 #include "string.h"
 #include "stdbool.h"
+#include "core_cm4.h"
 #include "Globals.h"
 
 #include "TaskSensorData.h"
@@ -213,6 +214,33 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 	}
 }
 
+
+/* Debug Exception and Monitor Control Register base address */
+#define DEMCR                 *((volatile uint32_t*) 0xE000EDFCu)
+
+/* ITM register addresses */
+#define ITM_STIMULUS_PORT0    *((volatile uint32_t*) 0xE0000000u)
+#define ITM_TRACE_EN          *((volatile uint32_t*) 0xE0000E00u)
+
+/* Send a char through ITM */
+void ITM_SendChar(char* ch) {
+    // read FIFO status in bit [0]:
+    while(!(ITM_STIMULUS_PORT0 & 1));
+    // write to ITM stimulus port0
+    ITM_STIMULUS_PORT0 = *ch;
+}
+
+/* Override low-level _write system call */
+int _write(int file, char *ptr, int len) {
+    int DataIdx;
+    for (DataIdx = 0; DataIdx < len; DataIdx++) {
+        //ITM_SendChar(ptr);
+        ptr++;
+    }
+    return len;
+}
+
+
 /* USER CODE END 0 */
 
 /**
@@ -253,6 +281,11 @@ int main(void)
   MX_SPI1_Init();
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
+
+	// Enable TRCENA
+	DEMCR |= ( 1 << 24);
+	// Enable stimulus port 0
+	ITM_TRACE_EN |= ( 1 << 0);
 
 	MPU_Init(&hspi2, &MPU9250);
 	BMP280_initialize(&hspi2, &BMP280);
@@ -912,32 +945,6 @@ void RunTaskDiagnostics(void const * argument)
   /* USER CODE BEGIN RunTaskDiagnostics */
 	TaskDiagnostics(argument);
   /* USER CODE END RunTaskDiagnostics */
-}
-
-/**
-  * @brief  Period elapsed callback in non blocking mode
-  * @note   This function is called  when TIM6 interrupt took place, inside
-  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
-  * a global variable "uwTick" used as application time base.
-  * @param  htim : TIM handle
-  * @retval None
-  */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-  /* USER CODE BEGIN Callback 0 */
-
-	if (htim == &htim1)
-	{
-		HCSR04_TMR_OVF_ISR(&HCSR04, htim);
-	}
-
-  /* USER CODE END Callback 0 */
-  if (htim->Instance == TIM6) {
-    HAL_IncTick();
-  }
-  /* USER CODE BEGIN Callback 1 */
-
-  /* USER CODE END Callback 1 */
 }
 
 /**
