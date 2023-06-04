@@ -222,13 +222,13 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 #define ITM_STIMULUS_PORT0    *((volatile uint32_t*) 0xE0000000u)
 #define ITM_TRACE_EN          *((volatile uint32_t*) 0xE0000E00u)
 
-/* Send a char through ITM */
-void ITM_SendChar(char* ch) {
-    // read FIFO status in bit [0]:
-    while(!(ITM_STIMULUS_PORT0 & 1));
-    // write to ITM stimulus port0
-    ITM_STIMULUS_PORT0 = *ch;
-}
+///* Send a char through ITM */
+//void ITM_SendChar(char* ch) {
+//    // read FIFO status in bit [0]:
+//    while(!(ITM_STIMULUS_PORT0 & 1));
+//    // write to ITM stimulus port0
+//    ITM_STIMULUS_PORT0 = *ch;
+//}
 
 /* Override low-level _write system call */
 int _write(int file, char *ptr, int len) {
@@ -497,8 +497,8 @@ static void MX_SPI1_Init(void)
   hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
-  hspi1.Init.NSS = SPI_NSS_SOFT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+  hspi1.Init.NSS = SPI_NSS_HARD_OUTPUT;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_256;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
@@ -945,6 +945,27 @@ void RunTaskDiagnostics(void const * argument)
   /* USER CODE BEGIN RunTaskDiagnostics */
 	TaskDiagnostics(argument);
   /* USER CODE END RunTaskDiagnostics */
+}
+
+/**
+  * @brief  Period elapsed callback in non blocking mode
+  * @note   This function is called  when TIM6 interrupt took place, inside
+  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+  * a global variable "uwTick" used as application time base.
+  * @param  htim : TIM handle
+  * @retval None
+  */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  /* USER CODE BEGIN Callback 0 */
+
+  /* USER CODE END Callback 0 */
+  if (htim->Instance == TIM6) {
+    HAL_IncTick();
+  }
+  /* USER CODE BEGIN Callback 1 */
+
+  /* USER CODE END Callback 1 */
 }
 
 /**
