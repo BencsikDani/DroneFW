@@ -6,6 +6,7 @@
 #include "Debug.h"
 
 extern UART_HandleTypeDef huart3;
+extern SPI_HandleTypeDef hspi1;
 extern osSemaphoreId RemoteBufferSemaphoreHandle;
 extern osMutexId MagnMutexHandle;
 extern osMutexId RemoteDataMutexHandle;
@@ -79,11 +80,15 @@ void TaskDiagnostics(void const *argument)
 		sprintf(str, "%s\r\n\r\n", str);
 
 		// Sending UART log info
-		if (Diag)
-			HAL_UART_Transmit(&huart3, str, strlen(str), HAL_MAX_DELAY);
+		//if (Diag)
+		//	HAL_UART_Transmit(&huart3, str, strlen(str), HAL_MAX_DELAY);
 
-		printf("Csaaaa\r\n");
+		uint8_t temp[8] = {69, 70, 71, 72, 73, 74, 75, 76};
+		HAL_SPI_Transmit(&hspi1, &temp, 8, HAL_MAX_DELAY);
+		char tempstr[30];
+		sprintf(tempstr, "SPI data sent!\r\n");
+		HAL_UART_Transmit(&huart3, tempstr, strlen(tempstr), HAL_MAX_DELAY);
 
-		osDelay(100);
+		osDelay(1000);
 	}
 }
