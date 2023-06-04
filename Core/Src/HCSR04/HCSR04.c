@@ -5,7 +5,7 @@
 
 extern osSemaphoreId DistSemaphoreHandle;
 
-void HCSR04_Init(HCSR04_t* pHCSR04, TIM_HandleTypeDef* htim)
+uint8_t HCSR04_Init(HCSR04_t* pHCSR04, TIM_HandleTypeDef* htim)
 {
 	pHCSR04->TRIG_GPIO = DIS_TRIG_GPIO_Port;
 	pHCSR04->TRIG_PIN = DIS_TRIG_Pin;
@@ -34,6 +34,8 @@ void HCSR04_Init(HCSR04_t* pHCSR04, TIM_HandleTypeDef* htim)
 
 	HAL_TIM_Base_Start_IT(htim);
 	HAL_TIM_IC_Start_IT(htim, pHCSR04->IC_TIM_CH);
+
+	return 0;
 }
 
 

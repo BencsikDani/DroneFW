@@ -13,6 +13,11 @@ int Uart2CallbackCounter = 0;
 
 bool Rotors = true;
 
+bool IsImuAvailable = false;
+bool IsMagnAvailable = false;
+bool IsDistAvailable = false;
+bool IsGpsAvailable = false;
+
 // Transmitter channel variables
 uint16_t Throttle = 50;
 uint16_t Yaw = 75;

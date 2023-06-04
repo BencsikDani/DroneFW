@@ -37,6 +37,11 @@ extern int Uart2CallbackCounter;
 
 extern bool Rotors;
 
+extern bool IsImuAvailable;
+extern bool IsMagnAvailable;
+extern bool IsDistAvailable;
+extern bool IsGpsAvailable;
+
 // Transmitter channel variables
 extern uint16_t Throttle;
 extern uint16_t Yaw;

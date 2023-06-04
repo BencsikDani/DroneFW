@@ -253,12 +253,30 @@ int main(void)
   MX_SPI1_Init();
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
-	MPU_Init(&hspi2, &MPU9250);
-	BMP280_initialize(&hspi2, &BMP280);
 
-	HMC5883L_Init();
+  	// Init IMU
+	if(MPU_Init(&hspi2, &MPU9250) == 0 && BMP280_initialize(&hspi2, &BMP280) == 0)
+		IsImuAvailable = true;
+	else
+		IsImuAvailable = false;
 
-	HCSR04_Init(&HCSR04, &htim1);
+	// Init Magnetometer
+	if (HMC5883L_Init() == 0)
+		IsMagnAvailable = true;
+	else
+		IsMagnAvailable = false;
+
+	// Init Distance sensor
+//	if (HCSR04_Init(&HCSR04, &htim1) == 0)
+//		IsDistAvailable = true;
+//	else
+//		IsDistAvailable = false;
+
+	// Init GPS
+//	if (GPS_Init() == 0)
+//		IsGpsAvailable = true;
+//	else
+//		IsGpsAvailable = false;
 
   /* USER CODE END 2 */
 

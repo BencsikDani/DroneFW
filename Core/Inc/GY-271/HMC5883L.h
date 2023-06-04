@@ -71,7 +71,7 @@ typedef struct Vector
 	float ZAxis;
 } Vector;
 
-void HMC5883L_Init(void);
+uint8_t HMC5883L_Init(void);
 
 Vector HMC5883L_readRaw(void);
 Vector HMC5883L_read_mGauss(void);

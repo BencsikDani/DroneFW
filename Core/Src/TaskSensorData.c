@@ -23,100 +23,108 @@ extern osMutexId GpsDataMutexHandle;
 
 void TaskSensorData(void const *argument)
 {
-	GPS_Init();
-
 	/* Infinite loop */
 	while (1)
 	{
 		// IMU Data
-		//Log("SenDat - IMutEnter");
-		if (osMutexWait(ImuMutexHandle, osWaitForever) == osOK)
+		if (IsImuAvailable)
 		{
-			//Log("SenDat - IMutEntered");
-			//MPU9250_GetData(AccData, &TempData, GyroData, MagData, false);
-			MPU_readRawData(&hspi2, &MPU9250);
-			MPU_readProcessedData(&hspi2, &MPU9250);
+			if (osMutexWait(ImuMutexHandle, osWaitForever) == osOK)
+			{
+				//MPU9250_GetData(AccData, &TempData, GyroData, MagData, false);
+				MPU_readRawData(&hspi2, &MPU9250);
+				MPU_readProcessedData(&hspi2, &MPU9250);
 
-			AccData[0] = MPU9250.sensorData.ax;
-			AccData[1] = MPU9250.sensorData.ay;
-			AccData[2] = MPU9250.sensorData.az;
-			TempData = MPU9250.sensorData.temp;
-			GyroData[0] = MPU9250.sensorData.gx;
-			GyroData[1] = MPU9250.sensorData.gy;
-			GyroData[2] = MPU9250.sensorData.gz;
+				AccData[0] = MPU9250.sensorData.ax;
+				AccData[1] = MPU9250.sensorData.ay;
+				AccData[2] = MPU9250.sensorData.az;
+				TempData = MPU9250.sensorData.temp;
+				GyroData[0] = MPU9250.sensorData.gx;
+				GyroData[1] = MPU9250.sensorData.gy;
+				GyroData[2] = MPU9250.sensorData.gz;
 
-			BMP280_measure(&BMP280);
+				BMP280_measure(&BMP280);
 
-			BMP_Temp = BMP280.measurement.temperature;
-			BMP_Pres = BMP280.measurement.pressure;
-			BMP_Alt = BMP280.measurement.altitude;
+				BMP_Temp = BMP280.measurement.temperature;
+				BMP_Pres = BMP280.measurement.pressure;
+				BMP_Alt = BMP280.measurement.altitude;
 
-			//Log("SenDat - IMutRelease");
-			//osMutexRelease(ImuMutexHandle);
-			//Log("SenDat - IMutReleased");
+				//Log("SenDat - IMutRelease");
+				//osMutexRelease(ImuMutexHandle);
+				//Log("SenDat - IMutReleased");
+			}
+			osMutexRelease(ImuMutexHandle);
 		}
-		osMutexRelease(ImuMutexHandle);
 
 		// Magnetometer Data
-		if (osMutexWait(MagnMutexHandle, osWaitForever) == osOK)
+		if (IsMagnAvailable)
 		{
-			struct Vector res = HMC5883L_readRaw();
-			MAG_X_RAW = res.XAxis;
-			MAG_Y_RAW = res.YAxis;
-			MAG_Z_RAW = res.ZAxis;
+			if (osMutexWait(MagnMutexHandle, osWaitForever) == osOK)
+			{
+				struct Vector res = HMC5883L_readRaw();
+				MAG_X_RAW = res.XAxis;
+				MAG_Y_RAW = res.YAxis;
+				MAG_Z_RAW = res.ZAxis;
 
-			magnitude = sqrtf((float)(MAG_X_RAW * MAG_X_RAW)
-										+ (float)(MAG_Y_RAW * MAG_Y_RAW)
-										+ (float)(MAG_Z_RAW * MAG_Z_RAW));
+				magnitude = sqrtf((float)(MAG_X_RAW * MAG_X_RAW)
+											+ (float)(MAG_Y_RAW * MAG_Y_RAW)
+											+ (float)(MAG_Z_RAW * MAG_Z_RAW));
 
-			MAG_X_NORM = MAG_X_RAW / magnitude;
-			MAG_Y_NORM = MAG_Y_RAW / magnitude;
-			MAG_Z_NORM = MAG_Z_RAW / magnitude;
+				MAG_X_NORM = MAG_X_RAW / magnitude;
+				MAG_Y_NORM = MAG_Y_RAW / magnitude;
+				MAG_Z_NORM = MAG_Z_RAW / magnitude;
 
-			MAG_dir = atan2f(MAG_X_NORM, MAG_Y_NORM)*180.0f/M_PI;
+				MAG_dir = atan2f(MAG_X_NORM, MAG_Y_NORM)*180.0f/M_PI;
 
-			MAG_dir += declination;
+				MAG_dir += declination;
 
-			if (MAG_dir < 0)
-				MAG_dir += 360.0f;
-			if (MAG_dir > 360.0f)
-				MAG_dir -= 360.0f;
+				if (MAG_dir < 0)
+					MAG_dir += 360.0f;
+				if (MAG_dir > 360.0f)
+					MAG_dir -= 360.0f;
+			}
+			osMutexRelease(MagnMutexHandle);
 		}
-		osMutexRelease(MagnMutexHandle);
 
 		// Distance Data
-		if (!HCSR04.Triggered)
+		if (IsDistAvailable)
 		{
-			HCSR04_Trigger(&HCSR04);
-			HCSR04.Triggered = true;
-		}
-		else if (HCSR04.Triggered && osSemaphoreWait(DistSemaphoreHandle, osWaitForever) == osOK)
-		{
-			if (osMutexWait(DistMutexHandle, osWaitForever) == osOK)
+			if (!HCSR04.Triggered)
 			{
-				Distance = HCSR04_Read(&HCSR04);
+				HCSR04_Trigger(&HCSR04);
+				HCSR04.Triggered = true;
 			}
-			osMutexRelease(DistMutexHandle);
-			HCSR04.Triggered = false;
+			else if (HCSR04.Triggered && osSemaphoreWait(DistSemaphoreHandle, osWaitForever) == osOK)
+			{
+				if (osMutexWait(DistMutexHandle, osWaitForever) == osOK)
+				{
+					Distance = HCSR04_Read(&HCSR04);
+				}
+				osMutexRelease(DistMutexHandle);
+				HCSR04.Triggered = false;
+			}
 		}
 
 		// GPS Data
-		if (osSemaphoreWait(GpsBufferSemaphoreHandle, osWaitForever) == osOK)
+		if (IsGpsAvailable)
 		{
-			if (ProcessGPSPackageBuffer)
+			if (osSemaphoreWait(GpsBufferSemaphoreHandle, osWaitForever) == osOK)
 			{
-				//HAL_UART_Transmit(&huart3, GPSPackageBuffer, GPS_BUFFSIZE, HAL_MAX_DELAY);
-				//HAL_UART_Transmit(&huart3, "\r\n", sizeof("\r\n"), HAL_MAX_DELAY);
-
-				if (osMutexWait(GpsDataMutexHandle, osWaitForever) == osOK)
+				if (ProcessGPSPackageBuffer)
 				{
-					if (GPS_validate((char*) GPSPackageBuffer))
-						GPS_parse((char*) GPSPackageBuffer);
-					memset(GPSPackageBuffer, 0, sizeof(GPSPackageBuffer));
-				}
-				osMutexRelease(GpsDataMutexHandle);
+					//HAL_UART_Transmit(&huart3, GPSPackageBuffer, GPS_BUFFSIZE, HAL_MAX_DELAY);
+					//HAL_UART_Transmit(&huart3, "\r\n", sizeof("\r\n"), HAL_MAX_DELAY);
 
-				ProcessGPSPackageBuffer = false;
+					if (osMutexWait(GpsDataMutexHandle, osWaitForever) == osOK)
+					{
+						if (GPS_validate((char*) GPSPackageBuffer))
+							GPS_parse((char*) GPSPackageBuffer);
+						memset(GPSPackageBuffer, 0, sizeof(GPSPackageBuffer));
+					}
+					osMutexRelease(GpsDataMutexHandle);
+
+					ProcessGPSPackageBuffer = false;
+				}
 			}
 		}
 
