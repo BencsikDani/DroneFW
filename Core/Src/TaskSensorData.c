@@ -32,8 +32,6 @@ void TaskSensorData(void const *argument)
 		//Log("SenDat - IMutEnter");
 		if (osMutexWait(ImuMutexHandle, osWaitForever) == osOK)
 		{
-
-
 			//Log("SenDat - IMutEntered");
 			//MPU9250_GetData(AccData, &TempData, GyroData, MagData, false);
 			MPU_readRawData(&hspi2, &MPU9250);
