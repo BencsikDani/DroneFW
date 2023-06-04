@@ -30,7 +30,7 @@ typedef struct
 
 /*-----[ Prototypes For All Functions ]-----*/
 
-void HCSR04_Init(HCSR04_t* pHCSR04, TIM_HandleTypeDef* TMR_Handle);
+uint8_t HCSR04_Init(HCSR04_t* pHCSR04, TIM_HandleTypeDef* TMR_Handle);
 void HCSR04_TMR_OVF_ISR(HCSR04_t* pHCSR04, TIM_HandleTypeDef* htim);
 void HCSR04_TMR_IC_ISR(HCSR04_t* pHCSR04, TIM_HandleTypeDef* htim);
 void HCSR04_Trigger(HCSR04_t* pHCSR04);

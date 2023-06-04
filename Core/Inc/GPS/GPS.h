@@ -51,7 +51,7 @@ typedef struct
 } GPS_t;
 
 
-void GPS_Init();
+uint8_t GPS_Init();
 void GSP_USBPrint(char *data);
 void GPS_print_val(char *data, int value);
 void GPS_UART_CallBack();

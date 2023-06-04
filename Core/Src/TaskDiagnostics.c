@@ -71,72 +71,80 @@ void TaskDiagnostics(void const *argument)
 		}
 		osMutexRelease(RemoteDataMutexHandle);
 
-
-		if (osMutexWait(ImuMutexHandle, osWaitForever) == osOK)
+		if (IsImuAvailable)
 		{
-			sprintf(UARTstr,
-					"%sTemp: %.4f\r\nAcc:  %1.4f ; %1.4f ; %1.4f\r\nGyro: %1.4f ; %1.4f ; %1.4f\r\n",
-					UARTstr,
-					TempData,
-					AccData[0], AccData[1], AccData[2],
-					GyroData[0], GyroData[1], GyroData[2]);
-			DisassembleFloatIntoUint8s(&TempData, SpiFloatData1, 1);
-			DisassembleFloatIntoUint8s(AccData, SpiFloatData1, 5);
-			DisassembleFloatIntoUint8s(AccData+1, SpiFloatData1, 9);
-			DisassembleFloatIntoUint8s(AccData+2, SpiFloatData1, 13);
-			DisassembleFloatIntoUint8s(GyroData, SpiFloatData1, 17);
-			DisassembleFloatIntoUint8s(GyroData+1, SpiFloatData1, 21);
-			DisassembleFloatIntoUint8s(GyroData+2, SpiFloatData1, 25);
+			if (osMutexWait(ImuMutexHandle, osWaitForever) == osOK)
+			{
+				sprintf(UARTstr,
+						"%sTemp: %.4f\r\nAcc:  %1.4f ; %1.4f ; %1.4f\r\nGyro: %1.4f ; %1.4f ; %1.4f\r\n",
+						UARTstr,
+						TempData,
+						AccData[0], AccData[1], AccData[2],
+						GyroData[0], GyroData[1], GyroData[2]);
+				DisassembleFloatIntoUint8s(&TempData, SpiFloatData1, 1);
+				DisassembleFloatIntoUint8s(AccData, SpiFloatData1, 5);
+				DisassembleFloatIntoUint8s(AccData+1, SpiFloatData1, 9);
+				DisassembleFloatIntoUint8s(AccData+2, SpiFloatData1, 13);
+				DisassembleFloatIntoUint8s(GyroData, SpiFloatData1, 17);
+				DisassembleFloatIntoUint8s(GyroData+1, SpiFloatData1, 21);
+				DisassembleFloatIntoUint8s(GyroData+2, SpiFloatData1, 25);
 
-			sprintf(UARTstr,
-					"%sBMP_Temp: %.4f\r\nBMP_Pres: %.4f\r\nBMP_Alt: %.4f\r\n",
-					UARTstr,
-					BMP_Temp, BMP_Pres, BMP_Alt);
-			DisassembleFloatIntoUint8s(&BMP_Temp, SpiFloatData1, 29);
-			DisassembleFloatIntoUint8s(&BMP_Pres, SpiFloatData1, 33);
-			DisassembleFloatIntoUint8s(&BMP_Alt, SpiFloatData1, 37);
+				sprintf(UARTstr,
+						"%sBMP_Temp: %.4f\r\nBMP_Pres: %.4f\r\nBMP_Alt: %.4f\r\n",
+						UARTstr,
+						BMP_Temp, BMP_Pres, BMP_Alt);
+				DisassembleFloatIntoUint8s(&BMP_Temp, SpiFloatData1, 29);
+				DisassembleFloatIntoUint8s(&BMP_Pres, SpiFloatData1, 33);
+				DisassembleFloatIntoUint8s(&BMP_Alt, SpiFloatData1, 37);
+			}
+			osMutexRelease(ImuMutexHandle);
 		}
-		osMutexRelease(ImuMutexHandle);
 
-
-		if (osMutexWait(MagnMutexHandle, osWaitForever) == osOK)
+		if (IsMagnAvailable)
 		{
-			sprintf(UARTstr,
-					"%sMAG_X_RAW: %.4f\r\nMAG_Y_RAW: %.4f\r\nMAG_Z_RAW: %.4f\r\ndir: %.4f\r\n",
-					UARTstr,
-					MAG_X_RAW, MAG_Y_RAW, MAG_Z_RAW, MAG_dir);
-			DisassembleFloatIntoUint8s(&MAG_X_RAW, SpiFloatData1, 41);
-			DisassembleFloatIntoUint8s(&MAG_Y_RAW, SpiFloatData1, 45);
-			DisassembleFloatIntoUint8s(&MAG_Z_RAW, SpiFloatData1, 49);
-			DisassembleFloatIntoUint8s(&MAG_dir, SpiFloatData1, 53);
+			if (osMutexWait(MagnMutexHandle, osWaitForever) == osOK)
+			{
+				sprintf(UARTstr,
+						"%sMAG_X_RAW: %.4f\r\nMAG_Y_RAW: %.4f\r\nMAG_Z_RAW: %.4f\r\ndir: %.4f\r\n",
+						UARTstr,
+						MAG_X_RAW, MAG_Y_RAW, MAG_Z_RAW, MAG_dir);
+				DisassembleFloatIntoUint8s(&MAG_X_RAW, SpiFloatData1, 41);
+				DisassembleFloatIntoUint8s(&MAG_Y_RAW, SpiFloatData1, 45);
+				DisassembleFloatIntoUint8s(&MAG_Z_RAW, SpiFloatData1, 49);
+				DisassembleFloatIntoUint8s(&MAG_dir, SpiFloatData1, 53);
+			}
+			osMutexRelease(MagnMutexHandle);
 		}
-		osMutexRelease(MagnMutexHandle);
 
-
-		if (osMutexWait(DistMutexHandle, osWaitForever) == osOK)
+		if (IsDistAvailable)
 		{
-			sprintf(UARTstr, "%sDistance: %.0f mm\r\n", UARTstr, Distance);
-			DisassembleFloatIntoUint8s(&Distance, SpiFloatData1, 57);
+			if (osMutexWait(DistMutexHandle, osWaitForever) == osOK)
+			{
+				sprintf(UARTstr, "%sDistance: %.0f mm\r\n", UARTstr, Distance);
+				DisassembleFloatIntoUint8s(&Distance, SpiFloatData1, 57);
+			}
+			osMutexRelease(DistMutexHandle);
 		}
-		osMutexRelease(DistMutexHandle);
 
-
-		if (osMutexWait(GpsDataMutexHandle, osWaitForever) == osOK)
+		if (IsGpsAvailable)
 		{
-			sprintf(UARTstr, "%sGPS:\tLat -> %.4f %c\r\n\tLong -> %.4f %c\r\n\tFix -> %d\r\n\tNOS -> %d\r\n\tHDOP -> %.4f\r\n\tAlt -> %.4f %c\r\n",
-					UARTstr,
-					GPS.dec_latitude, GPS.ns, GPS.dec_longitude, GPS.ew, GPS.fix, GPS.num_of_satelites, GPS.horizontal_dilution_of_precision, GPS.mean_sea_level_altitude, GPS.altitude_unit);
-			DisassembleFloatIntoUint8s(&GPS.dec_latitude, SpiFloatData2, 1);
-			SpiIntData[15] = (uint8_t)GPS.ns;
-			DisassembleFloatIntoUint8s(&GPS.dec_longitude, SpiFloatData2, 5);
-			SpiIntData[16] = (uint8_t)GPS.ew;
-			SpiIntData[17] = (uint8_t)(GPS.fix & 0x000000ff);
-			SpiIntData[18] = (uint8_t)(GPS.num_of_satelites & 0x000000ff);
-			DisassembleFloatIntoUint8s(&GPS.horizontal_dilution_of_precision, SpiFloatData2, 9);
-			DisassembleFloatIntoUint8s(&GPS.mean_sea_level_altitude, SpiFloatData2, 13);
-			SpiIntData[19] = (uint8_t)GPS.altitude_unit;
+			if (osMutexWait(GpsDataMutexHandle, osWaitForever) == osOK)
+			{
+				sprintf(UARTstr, "%sGPS:\tLat -> %.4f %c\r\n\tLong -> %.4f %c\r\n\tFix -> %d\r\n\tNOS -> %d\r\n\tHDOP -> %.4f\r\n\tAlt -> %.4f %c\r\n",
+						UARTstr,
+						GPS.dec_latitude, GPS.ns, GPS.dec_longitude, GPS.ew, GPS.fix, GPS.num_of_satelites, GPS.horizontal_dilution_of_precision, GPS.mean_sea_level_altitude, GPS.altitude_unit);
+				DisassembleFloatIntoUint8s(&GPS.dec_latitude, SpiFloatData2, 1);
+				SpiIntData[15] = (uint8_t)GPS.ns;
+				DisassembleFloatIntoUint8s(&GPS.dec_longitude, SpiFloatData2, 5);
+				SpiIntData[16] = (uint8_t)GPS.ew;
+				SpiIntData[17] = (uint8_t)(GPS.fix & 0x000000ff);
+				SpiIntData[18] = (uint8_t)(GPS.num_of_satelites & 0x000000ff);
+				DisassembleFloatIntoUint8s(&GPS.horizontal_dilution_of_precision, SpiFloatData2, 9);
+				DisassembleFloatIntoUint8s(&GPS.mean_sea_level_altitude, SpiFloatData2, 13);
+				SpiIntData[19] = (uint8_t)GPS.altitude_unit;
+			}
+			osMutexRelease(GpsDataMutexHandle);
 		}
-		osMutexRelease(GpsDataMutexHandle);
 
 
 		sprintf(UARTstr, "%s\r\n\r\n", UARTstr);

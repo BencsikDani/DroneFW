@@ -4,13 +4,15 @@
 #include "Globals.h"
 
 
-void HMC5883L_Init()
+uint8_t HMC5883L_Init()
 {
 	HMC5883L_setRange(HMC5883L_RANGE_8_1GA);
 	HMC5883L_setMeasurementMode(HMC5883L_CONTINOUS);
 	HMC5883L_setDataRate(HMC5883L_DATARATE_30HZ);
 	HMC5883L_setSamples(HMC5883L_SAMPLES_4);
 	HMC5883L_setOffset(0, 0);
+
+	return 0;
 }
 
 Vector HMC5883L_readRaw(void)

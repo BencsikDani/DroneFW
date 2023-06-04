@@ -48,7 +48,7 @@ uint8_t MPU_begin(SPI_HandleTypeDef *SPIx, MPU9250_t *pMPU9250)
 /// @brief Do the whole initialization of the IMU
 /// @param SPIx Pointer to SPI structure config
 /// @param pMPU9250 Pointer to master MPU9250 struct
-void MPU_Init(SPI_HandleTypeDef *SPIx, MPU9250_t *pMPU9250)
+uint8_t MPU_Init(SPI_HandleTypeDef *SPIx, MPU9250_t *pMPU9250)
 {
 	// Disable BMP280
 	HAL_GPIO_WritePin(SPI2_IMU_CSBM_GPIO_Port, SPI2_IMU_CSBM_Pin, GPIO_PIN_SET);
@@ -66,12 +66,14 @@ void MPU_Init(SPI_HandleTypeDef *SPIx, MPU9250_t *pMPU9250)
 	{
 		char str[100] = "ERROR: IMU ID is wrong.";
 		HAL_UART_Transmit(&huart3, str, strlen(str), HAL_MAX_DELAY);
-		while (1) {}
+		return 1;
 	}
 
 	// Calibrate the IMU
 	HAL_UART_Transmit(&huart3, "CALIBRATING...\r\n", strlen("CALIBRATING...\r\n"), HAL_MAX_DELAY);
 	MPU_calibrateGyro(SPIx, pMPU9250, 10);
+
+	return 0;
 }
 
 /// @brief Read a specific registry address

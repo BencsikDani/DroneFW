@@ -4,9 +4,11 @@
 
 extern UART_HandleTypeDef huart4;
 
-void GPS_Init()
+uint8_t GPS_Init()
 {
 	HAL_UART_Receive_IT(&huart4, &Uart4Buffer, 1);
+
+	return 0;
 }
 
 int GPS_validate(char *nmeastr)
