@@ -19,10 +19,14 @@ bool IsDistAvailable = false;
 bool IsGpsAvailable = false;
 
 // Transmitter channel variables
-uint16_t Throttle = 0;
-int16_t Yaw = 0;
-int16_t Pitch = 0;
-int16_t Roll = 0;
+uint16_t Throttle_in = 0;
+uint16_t Throttle_controlled = 0;
+int16_t Yaw_in = 0;
+int16_t Yaw_controlled = 0;
+int16_t Pitch_in = 0;
+int16_t Pitch_controlled = 0;
+int16_t Roll_in = 0;
+int16_t Roll_controlled = 0;
 uint16_t SWA = 0;
 uint16_t SWB = 0;
 uint16_t SWC = 0;
