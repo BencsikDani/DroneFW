@@ -1,4 +1,4 @@
-#include "PID.h"
+#include "Controller/PID.h"
 
 void PIDController_Init(PIDController *pid)
 {
@@ -14,8 +14,8 @@ void PIDController_Init(PIDController *pid)
 	pid->out = 0.0f;
 
 	// Calculate low-pass filter parameters
-	p->tau = 5 * pid->T;
-	alpha = (pid->T) / (pid->T + pid->tau);
+	pid->tau = 5 * pid->T;
+	pid->alpha = (pid->T) / (pid->T + pid->tau);
 }
 
 float PIDController_Update(PIDController *pid, float setpoint, float measurement)
@@ -34,8 +34,8 @@ float PIDController_Update(PIDController *pid, float setpoint, float measurement
     pid->integrator = pid->integrator + pid->Ki * (pid->T / 2) * (error + pid->prevError);
 
 	// Derivative with low-pass filter
-    pid->differentiator = (1 - alpha) * pid->differentiator
-    		+ alpha *  (pid->Kd * (error - pid->prevError) / pid->T);
+    pid->differentiator = (1 - pid->alpha) * pid->differentiator
+    		+ pid->alpha *  (pid->Kd * (error - pid->prevError) / pid->T);
 
 	// Compute output and apply limits
     pid->out = proportional + pid->integrator + pid->differentiator;

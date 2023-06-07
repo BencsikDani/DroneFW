@@ -19,16 +19,16 @@ bool IsDistAvailable = false;
 bool IsGpsAvailable = false;
 
 // Transmitter channel variables
-uint16_t Throttle = 50;
-uint16_t Yaw = 75;
-uint16_t Pitch = 75;
-uint16_t Roll = 75;
-uint16_t SWA = 50;
-uint16_t SWB = 50;
-uint16_t SWC = 50;
-uint16_t SWD = 50;
-uint16_t VRA = 50;
-uint16_t VRB = 50;
+uint16_t Throttle = 0;
+int16_t Yaw = 0;
+int16_t Pitch = 0;
+int16_t Roll = 0;
+uint16_t SWA = 0;
+uint16_t SWB = 0;
+uint16_t SWC = 0;
+uint16_t SWD = 0;
+uint16_t VRA = 0;
+uint16_t VRB = 0;
 
 MPU9250_t MPU9250;
 float AccData[3] = { 0 };

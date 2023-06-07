@@ -22,11 +22,11 @@ void DisassembleFloatIntoUint8s(float* n, uint8_t* array, int position)
 void TaskDiagnostics(void const *argument)
 {
 	char UARTstr[512];
-	uint8_t SpiIntData[64];
+	int8_t SpiIntData[64];
 	uint8_t SpiFloatData1[64];
 	uint8_t SpiFloatData2[64];
 
-	SpiIntData[0] = (uint8_t)('i');
+	SpiIntData[0] = (int8_t)('i');
 	SpiFloatData1[0] = (uint8_t)('f');
 	SpiFloatData2[0] = (uint8_t)('g');
 
@@ -35,39 +35,39 @@ void TaskDiagnostics(void const *argument)
 	{
 		if(osMutexWait(RemoteDataMutexHandle, osWaitForever) == osOK)
 		{
-			sprintf(UARTstr, "Throttle: (%d) %d %d %d %d\r\n", Throttle, TIM3->CCR3, TIM3->CCR4, TIM3->CCR1, TIM3->CCR2);
-			SpiIntData[1] = (uint8_t)Throttle;
-			SpiIntData[2] = (uint8_t)TIM3->CCR3;
-			SpiIntData[3] = (uint8_t)TIM3->CCR4;
-			SpiIntData[4] = (uint8_t)TIM3->CCR1;
-			SpiIntData[5] = (uint8_t)TIM3->CCR2;
+			sprintf(UARTstr, "Throttle: (%d) %d %d %d %d\r\n", Throttle, TIM3->CCR3-50, TIM3->CCR4-50, TIM3->CCR1-50, TIM3->CCR2-50);
+			SpiIntData[1] = (int8_t)Throttle;
+			SpiIntData[2] = (int8_t)TIM3->CCR3-50;
+			SpiIntData[3] = (int8_t)TIM3->CCR4-50;
+			SpiIntData[4] = (int8_t)TIM3->CCR1-50;
+			SpiIntData[5] = (int8_t)TIM3->CCR2-50;
 
 			sprintf(UARTstr, "%sYaw: %d\r\n", UARTstr, Yaw);
-			SpiIntData[6] = (uint8_t)Yaw;
+			SpiIntData[6] = (int8_t)Yaw;
 
 			sprintf(UARTstr, "%sPitch: %d\r\n", UARTstr, Pitch);
-			SpiIntData[7] = (uint8_t)Pitch;
+			SpiIntData[7] = (int8_t)Pitch;
 
 			sprintf(UARTstr, "%sRoll: %d\r\n", UARTstr, Roll);
-			SpiIntData[8] = (uint8_t)Roll;
+			SpiIntData[8] = (int8_t)Roll;
 
 			sprintf(UARTstr, "%sSWA: %d\r\n", UARTstr, SWA);
-			SpiIntData[9] = (uint8_t)SWA;
+			SpiIntData[9] = (int8_t)SWA;
 
 			sprintf(UARTstr, "%sSWB: %d\r\n", UARTstr, SWB);
-			SpiIntData[10] = (uint8_t)SWB;
+			SpiIntData[10] = (int8_t)SWB;
 
 			sprintf(UARTstr, "%sSWC: %d\r\n", UARTstr, SWC);
-			SpiIntData[11] = (uint8_t)SWC;
+			SpiIntData[11] = (int8_t)SWC;
 
 			sprintf(UARTstr, "%sSWD: %d\r\n", UARTstr, SWD);
-			SpiIntData[12] = (uint8_t)SWD;
+			SpiIntData[12] = (int8_t)SWD;
 
 			sprintf(UARTstr, "%sVRA: %d\r\n", UARTstr, VRA);
-			SpiIntData[13] = (uint8_t)VRA;
+			SpiIntData[13] = (int8_t)VRA;
 
 			sprintf(UARTstr, "%sVRB: %d\r\n", UARTstr, VRB);
-			SpiIntData[14] = (uint8_t)VRB;
+			SpiIntData[14] = (int8_t)VRB;
 		}
 		osMutexRelease(RemoteDataMutexHandle);
 
@@ -134,14 +134,14 @@ void TaskDiagnostics(void const *argument)
 						UARTstr,
 						GPS.dec_latitude, GPS.ns, GPS.dec_longitude, GPS.ew, GPS.fix, GPS.num_of_satelites, GPS.horizontal_dilution_of_precision, GPS.mean_sea_level_altitude, GPS.altitude_unit);
 				DisassembleFloatIntoUint8s(&GPS.dec_latitude, SpiFloatData2, 1);
-				SpiIntData[15] = (uint8_t)GPS.ns;
+				SpiIntData[15] = (int8_t)GPS.ns;
 				DisassembleFloatIntoUint8s(&GPS.dec_longitude, SpiFloatData2, 5);
-				SpiIntData[16] = (uint8_t)GPS.ew;
-				SpiIntData[17] = (uint8_t)(GPS.fix & 0x000000ff);
-				SpiIntData[18] = (uint8_t)(GPS.num_of_satelites & 0x000000ff);
+				SpiIntData[16] = (int8_t)GPS.ew;
+				SpiIntData[17] = (int8_t)(GPS.fix & 0x000000ff);
+				SpiIntData[18] = (int8_t)(GPS.num_of_satelites & 0x000000ff);
 				DisassembleFloatIntoUint8s(&GPS.horizontal_dilution_of_precision, SpiFloatData2, 9);
 				DisassembleFloatIntoUint8s(&GPS.mean_sea_level_altitude, SpiFloatData2, 13);
-				SpiIntData[19] = (uint8_t)GPS.altitude_unit;
+				SpiIntData[19] = (int8_t)GPS.altitude_unit;
 			}
 			osMutexRelease(GpsDataMutexHandle);
 		}
