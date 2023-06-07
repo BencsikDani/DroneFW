@@ -8,6 +8,9 @@ typedef struct {
 	// Controller gains
 	float Kp, Ki, Kd;
 
+	// Sample time (in seconds)
+	float T;
+
 	// Derivative low-pass filter
 	float tau, alpha;
 
@@ -16,9 +19,6 @@ typedef struct {
 
 	// Integrator Anti-windup flag
 	bool antiWindup;
-
-	// Sample time (in seconds)
-	float T;
 
 	// Controller "memory"
 	float prevError;

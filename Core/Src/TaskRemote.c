@@ -52,10 +52,10 @@ void TaskRemote(void const *argument)
 //					HAL_UART_Transmit(&huart3, "\r\n", sizeof("\r\n"), HAL_MAX_DELAY);
 
 					//Log("Rem - RDMutEntered");
-					Throttle = (channelValues[THROTTLE_CHANNEL] / 20) - 50;
-					Pitch = (channelValues[PITCH_CHANNEL] / 20) - 75;
-					Roll = (channelValues[ROLL_CHANNEL] / 20) - 75;
-					Yaw = (channelValues[YAW_CHANNEL] / 20) - 75;
+					Throttle_in = (channelValues[THROTTLE_CHANNEL] / 20) - 50;
+					Pitch_in = (channelValues[PITCH_CHANNEL] / 20) - 75;
+					Roll_in = (channelValues[ROLL_CHANNEL] / 20) - 75;
+					Yaw_in = (channelValues[YAW_CHANNEL] / 20) - 75;
 					SWA = (channelValues[SWA_CHANNEL] / 20) - 50;
 					SWB = (channelValues[SWB_CHANNEL] / 20) - 50;
 					SWC = (channelValues[SWC_CHANNEL] / 20) - 50;

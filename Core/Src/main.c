@@ -267,10 +267,10 @@ int main(void)
 		IsMagnAvailable = false;
 
 	// Init Distance sensor
-//	if (HCSR04_Init(&HCSR04, &htim1) == 0)
-//		IsDistAvailable = true;
-//	else
-//		IsDistAvailable = false;
+	if (HCSR04_Init(&HCSR04, &htim1) == 0)
+		IsDistAvailable = true;
+	else
+		IsDistAvailable = false;
 
 	// Init GPS
 //	if (GPS_Init() == 0)

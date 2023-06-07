@@ -35,21 +35,21 @@ void TaskDiagnostics(void const *argument)
 	{
 		if(osMutexWait(RemoteDataMutexHandle, osWaitForever) == osOK)
 		{
-			sprintf(UARTstr, "Throttle: (%d) %d %d %d %d\r\n", Throttle, TIM3->CCR3-50, TIM3->CCR4-50, TIM3->CCR1-50, TIM3->CCR2-50);
-			SpiIntData[1] = (int8_t)Throttle;
+			sprintf(UARTstr, "Throttle: (%d) %d %d %d %d\r\n", Throttle_in, TIM3->CCR3-50, TIM3->CCR4-50, TIM3->CCR1-50, TIM3->CCR2-50);
+			SpiIntData[1] = (int8_t)Throttle_controlled;
 			SpiIntData[2] = (int8_t)TIM3->CCR3-50;
 			SpiIntData[3] = (int8_t)TIM3->CCR4-50;
 			SpiIntData[4] = (int8_t)TIM3->CCR1-50;
 			SpiIntData[5] = (int8_t)TIM3->CCR2-50;
 
-			sprintf(UARTstr, "%sYaw: %d\r\n", UARTstr, Yaw);
-			SpiIntData[6] = (int8_t)Yaw;
+			sprintf(UARTstr, "%sYaw: %d\r\n", UARTstr, Yaw_in);
+			SpiIntData[6] = (int8_t)Yaw_in;
 
-			sprintf(UARTstr, "%sPitch: %d\r\n", UARTstr, Pitch);
-			SpiIntData[7] = (int8_t)Pitch;
+			sprintf(UARTstr, "%sPitch: %d\r\n", UARTstr, Pitch_in);
+			SpiIntData[7] = (int8_t)Pitch_in;
 
-			sprintf(UARTstr, "%sRoll: %d\r\n", UARTstr, Roll);
-			SpiIntData[8] = (int8_t)Roll;
+			sprintf(UARTstr, "%sRoll: %d\r\n", UARTstr, Roll_in);
+			SpiIntData[8] = (int8_t)Roll_in;
 
 			sprintf(UARTstr, "%sSWA: %d\r\n", UARTstr, SWA);
 			SpiIntData[9] = (int8_t)SWA;
