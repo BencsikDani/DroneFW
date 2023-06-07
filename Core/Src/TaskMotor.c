@@ -30,7 +30,7 @@ void TaskMotor(void const *argument)
 		//Log("Mot - RDMutEnter");
 		if (osMutexWait(RemoteDataMutexHandle, osWaitForever) == osOK)
 		{
-			if (SWA < 60)
+			if (SWA < 10)
 			{
 				HAL_GPIO_WritePin(ESC_DOWN_GPIO_Port, ESC_DOWN_Pin, GPIO_PIN_SET);
 				//Rotors = true;
@@ -43,29 +43,29 @@ void TaskMotor(void const *argument)
 			}
 
 
-			if (SWD < 60)
+			if (SWD < 10)
 			{
-				ESC1_start_signal = 51;
-				ESC2_start_signal = 51;
-				ESC3_start_signal = 51;
-				ESC4_start_signal = 51;
+				ESC1_start_signal = 1;
+				ESC2_start_signal = 1;
+				ESC3_start_signal = 1;
+				ESC4_start_signal = 1;
 			}
 			else
 			{
-				ESC1_start_signal = 51;
-				ESC2_start_signal = 54;
-				ESC3_start_signal = 52;
-				ESC4_start_signal = 53;
+				ESC1_start_signal = 1;
+				ESC2_start_signal = 1;
+				ESC3_start_signal = 2;
+				ESC4_start_signal = 3;
 			}
 
 
 			// Setting PWM speed
 			if (Rotors)
 			{
-				TIM3->CCR3 = (uint32_t) ((Throttle * (100-(ESC1_start_signal-1)) / 50) + (2*(ESC1_start_signal-1) - 100));
-				TIM3->CCR4 = (uint32_t) ((Throttle * (100-(ESC2_start_signal-1)) / 50) + (2*(ESC2_start_signal-1) - 100));
-				TIM3->CCR1 = (uint32_t) ((Throttle * (100-(ESC3_start_signal-1)) / 50) + (2*(ESC3_start_signal-1) - 100));
-				TIM3->CCR2 = (uint32_t) ((Throttle * (100-(ESC4_start_signal-1)) / 50) + (2*(ESC4_start_signal-1) - 100));
+				TIM3->CCR3 = (uint32_t) ((Throttle * (50-(ESC1_start_signal-1)) / 50) + (50+ESC1_start_signal-1));
+				TIM3->CCR4 = (uint32_t) ((Throttle * (50-(ESC2_start_signal-1)) / 50) + (50+ESC2_start_signal-1));
+				TIM3->CCR1 = (uint32_t) ((Throttle * (50-(ESC3_start_signal-1)) / 50) + (50+ESC3_start_signal-1));
+				TIM3->CCR2 = (uint32_t) ((Throttle * (50-(ESC4_start_signal-1)) / 50) + (50+ESC4_start_signal-1));
 			}
 			else
 			{

@@ -44,9 +44,9 @@ extern bool IsGpsAvailable;
 
 // Transmitter channel variables
 extern uint16_t Throttle;
-extern uint16_t Yaw;
-extern uint16_t Pitch;
-extern uint16_t Roll;
+extern int16_t Yaw;
+extern int16_t Pitch;
+extern int16_t Roll;
 extern uint16_t SWA;
 extern uint16_t SWB;
 extern uint16_t SWC;
