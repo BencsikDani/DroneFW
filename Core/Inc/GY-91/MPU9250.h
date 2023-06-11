@@ -69,7 +69,7 @@ typedef struct MPU9250
     struct Attitude
     {
         float tau, dt;
-        float r, p, y;
+        float roll, pitch, yaw;
     } attitude;
 
     struct Settings

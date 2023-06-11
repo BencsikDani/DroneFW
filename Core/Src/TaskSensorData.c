@@ -32,7 +32,7 @@ void TaskSensorData(void const *argument)
 			if (osMutexWait(ImuMutexHandle, osWaitForever) == osOK)
 			{
 				//MPU9250_GetData(AccData, &TempData, GyroData, MagData, false);
-				MPU_readRawData(&hspi2, &MPU9250);
+				//MPU_readRawData(&hspi2, &MPU9250);
 				MPU_readProcessedData(&hspi2, &MPU9250);
 
 				AccData[0] = MPU9250.sensorData.ax;
@@ -66,15 +66,31 @@ void TaskSensorData(void const *argument)
 				MAG_Y_RAW = res.YAxis;
 				MAG_Z_RAW = res.ZAxis;
 
-				magnitude = sqrtf((float)(MAG_X_RAW * MAG_X_RAW)
-											+ (float)(MAG_Y_RAW * MAG_Y_RAW)
-											+ (float)(MAG_Z_RAW * MAG_Z_RAW));
+//				magnitude = sqrtf((float)(MAG_X_RAW * MAG_X_RAW)
+//											+ (float)(MAG_Y_RAW * MAG_Y_RAW)
+//											+ (float)(MAG_Z_RAW * MAG_Z_RAW));
 
-				MAG_X_NORM = MAG_X_RAW / magnitude;
-				MAG_Y_NORM = MAG_Y_RAW / magnitude;
-				MAG_Z_NORM = MAG_Z_RAW / magnitude;
+				//MAG_X_NORM = MAG_X_RAW / magnitude;
+				//MAG_Y_NORM = MAG_Y_RAW / magnitude;
+				//MAG_Z_NORM = MAG_Z_RAW / magnitude;
 
-				MAG_dir = atan2f(MAG_X_NORM, MAG_Y_NORM)*180.0f/M_PI;
+				//MAG_dir = atan2f(MAG_X_NORM, MAG_Y_NORM)*180.0f/M_PI;
+
+				if (MAG_Y_RAW != 0)
+				{
+					if (MAG_Y_RAW > 0)
+						MAG_dir = 90.0f - (atan2f(MAG_X_RAW, MAG_Y_RAW)*180.0f/M_PI);
+					else if (MAG_Y_RAW < 0)
+						MAG_dir = 270.0f - (atan2f(MAG_X_RAW, MAG_Y_RAW)*180.0f/M_PI);
+				}
+				else if (MAG_Y_RAW == 0)
+				{
+					if (MAG_X_RAW > 0)
+						MAG_dir = 0.0f;
+					else if (MAG_X_RAW < 0)
+						MAG_dir = 180.0f;
+
+				}
 
 				MAG_dir += declination;
 

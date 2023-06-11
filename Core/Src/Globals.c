@@ -48,7 +48,7 @@ float BMP_Alt = 0;
 float mG_per_LSB;
 Vector v;
 int xOffset, yOffset;
-float declination = 5.57;
+float declination = 5.58;
 float MAG_X_RAW = 0;
 float MAG_Y_RAW = 0;
 float MAG_Z_RAW = 0;
