@@ -336,11 +336,11 @@ int main(void)
   TaskSensorDataHandle = osThreadCreate(osThread(TaskSensorData), NULL);
 
   /* definition and creation of TaskController */
-  osThreadDef(TaskController, RunTaskController, osPriorityHigh, 0, 128);
+  osThreadDef(TaskController, RunTaskController, osPriorityAboveNormal, 0, 128);
   TaskControllerHandle = osThreadCreate(osThread(TaskController), NULL);
 
   /* definition and creation of TaskRemote */
-  osThreadDef(TaskRemote, RunTaskRemote, osPriorityAboveNormal, 0, 512);
+  osThreadDef(TaskRemote, RunTaskRemote, osPriorityHigh, 0, 512);
   TaskRemoteHandle = osThreadCreate(osThread(TaskRemote), NULL);
 
   /* definition and creation of TaskMotor */
